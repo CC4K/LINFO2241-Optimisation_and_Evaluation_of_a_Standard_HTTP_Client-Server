@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 // Dummy function
 int foo(void) { return 42; }
@@ -17,10 +18,64 @@ int foo(void) { return 42; }
  * @note `mat1`, `mat2` and `patterns` should point to the body of `request` at the location of each element.
 */
 void parse_request(struct parsed_request *parsed, char *request, size_t request_len) {
-    (void)parsed;
-    (void)request;
-    (void)request_len;
-    printf("CHANGE ME\n");
+    char buffer[11];
+    int buf_index = 0;
+    int comma_count = 0;
+    int mat_size = 0;
+    int cut_size = 0;
+    int matrix_index = 0;
+    int pattern_index = 0;
+
+    for (size_t i = 0; i < request_len; i++) {
+        if (request[i] == ',' || i == request_len-1) {
+            // time to put request in parsed
+            if (i == request_len - 1 && request[i] != ',') {
+                buffer[buf_index++] = request[i];
+            }
+            buffer[buf_index] = '\0';  // for strtol to work
+
+            // first ,
+            if (comma_count == 0) {
+                parsed->matrices_size = (uint32_t)strtol(buffer, NULL, 10);
+                mat_size = parsed->matrices_size;
+                cut_size = mat_size*mat_size*4;
+            }
+            // second ,
+            else if (comma_count == 1) {
+                parsed->nb_patterns = (uint32_t)strtol(buffer, NULL, 10);
+            }
+            // third ,
+            else if (comma_count == 2) {
+                parsed->patterns_size = (uint32_t)strtol(buffer, NULL, 10);
+            }
+            else if (comma_count >= 3) {
+                // using comma_count as a counter from now on bcs why not
+                for (int j = 0; (j < cut_size) && (i + j < request_len); j++) {
+                    // mat1
+                    if (comma_count == 3) {
+                        parsed->mat1[matrix_index++] = (uint32_t) request[i + j];
+                    }
+                    // mat2
+                    else if (comma_count == 4) {
+                        parsed->mat2[matrix_index++] = (uint32_t) request[i + j];
+                    }
+                    // patterns
+                    else if (comma_count == 5) {
+                        parsed->patterns[pattern_index++] = (uint32_t) request[i + j];
+                    }
+                }
+                i += cut_size - 1;
+            }
+
+            // reset buffer
+            buf_index = 0;
+            comma_count++;
+        }
+        else {
+            // expand buffer
+            buffer[buf_index++] = request[i];
+        }
+    }
 }
 
 /**
