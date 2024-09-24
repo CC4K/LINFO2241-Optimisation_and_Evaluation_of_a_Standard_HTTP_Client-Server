@@ -16,19 +16,19 @@ int main() {
     // print parsed mat1 and mat2
     printf("Matrix 1 data: ");
     for (uint32_t i = 0; i < parsed.matrices_size * parsed.matrices_size; i++) {
-        printf("%c", (char)parsed.mat1[i]);
+        printf("%d ", parsed.mat1[i]);
     }
     printf("\n");
 
     printf("Matrix 2 data: ");
     for (uint32_t i = 0; i < parsed.matrices_size * parsed.matrices_size; i++) {
-        printf("%c", (char)parsed.mat2[i]);
+        printf("%d ", parsed.mat2[i]);
     }
     printf("\n");
 
     printf("Patterns data: ");
-    for (uint32_t i = 0; i < parsed.patterns_size; i++) {
-        printf("%c", (char)parsed.patterns[i]);
+    for (uint32_t i = 0; i < parsed.nb_patterns; i++) {
+        printf("%d ", parsed.patterns[i]);
     }
     printf("\n");
 

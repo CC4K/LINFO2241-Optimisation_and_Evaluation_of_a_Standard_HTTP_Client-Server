@@ -7,85 +7,6 @@
 // Dummy function
 int foo(void) { return 42; }
 
-/*
-    char buffer[50];
-    int buf_index = 0;
-    int comma_count = 0;
-    int mat_size = 0;
-    int matrix_length = 0;
-    int pat_size = 0;
-    int pat_number = 0;
-    int patterns_length = 0;
-
-for (size_t i = 0; i < request_len; i++) {
-    if (request[i] == ',' || i == request_len-1) {
-        // time to put request in parsed
-        if (i == request_len - 1 && request[i] != ',') {
-            buffer[buf_index++] = request[i];
-        }
-        buffer[buf_index] = '\0';  // for strtol to work
-
-        // first ,
-        if (comma_count == 0) {
-            parsed->matrices_size = (uint32_t) strtol(buffer, NULL, 10);
-            mat_size = parsed->matrices_size;
-            matrix_length = mat_size*mat_size*4;
-        }
-        // second ,
-        else if (comma_count == 1) {
-            parsed->nb_patterns = (uint32_t) strtol(buffer, NULL, 10);
-            pat_number = parsed->nb_patterns;
-        }
-        // third ,
-        else if (comma_count == 2) {
-            parsed->patterns_size = (uint32_t) strtol(buffer, NULL, 10);
-            pat_size = parsed->patterns_size;
-            patterns_length = pat_size*pat_number*4;
-        }
-        else if (comma_count >= 3) {
-            // using comma_count as a counter from now on bcs why not
-            //                for (int j = 0; (j < matrix_length) && (i + j < request_len); j++) {
-            //                    // mat1
-            //                    if (comma_count == 3) {
-            //                        char* substring = request;
-            //                        strncpy(substring, buffer+(i+j), matrix_length);
-            //                        parsed->mat1 = (uint32_t *)substring;
-            //                    }
-            //                    // mat2
-            //                    else if (comma_count == 4) {
-            //                        char* substring = request;
-            //                        strncpy(substring, buffer+(i+j), matrix_length);
-            //                        parsed->mat2 = (uint32_t *)substring;
-            //                    }
-            //                    // patterns
-            //                    else if (comma_count == 5) {
-            //                        char* substring = request;
-            //                        strncpy(substring, buffer+(i+j), matrix_length);
-            //                        parsed->patterns = (uint32_t *)substring;
-            //                    }
-            //                }
-
-            char *remaining = request + strlen(request) + 1;
-            memcpy(parsed->mat1, remaining, matrix_length);
-            remaining += matrix_length;
-            memcpy(parsed->mat2, remaining, matrix_length);
-            remaining += matrix_length;
-            memcpy(parsed->patterns, remaining, patterns_length);
-
-            i += matrix_length - 1;
-        }
-
-        // reset buffer
-        buf_index = 0;
-        comma_count++;
-    }
-    else {
-        // expand buffer
-        buffer[buf_index++] = request[i];
-    }
-}
-*/
-
 /**
  * @brief Parses a raw request into a nice struct
  *
@@ -119,32 +40,17 @@ void parse_request(struct parsed_request *parsed, char *request, size_t request_
         current = comma+1;
     }
 
-    //printf("mid-parse : %s\n", current);
-
-    uint32_t mat_size = parsed->matrices_size*parsed->matrices_size*sizeof(uint32_t);
     // mat1
-    //parsed->mat1 = (uint32_t *) current;
-    char buf[mat_size];
-    memcpy(buf, current, mat_size);
-    *parsed->mat1 = (uint32_t) *buf;
-    current += mat_size;
+    parsed->mat1 = (uint32_t *) current;
+    current += parsed->matrices_size*parsed->matrices_size*sizeof(uint32_t);
 
     // mat2
-    //parsed->mat2 = (uint32_t *) current;
-    memcpy(buf, current, mat_size);
-    *parsed->mat2 = (uint32_t) *buf;
-    current += mat_size;
+    parsed->mat2 = (uint32_t *) current;
+    current += parsed->matrices_size*parsed->matrices_size*sizeof(uint32_t);
 
     // patterns
-    char pat_buf[parsed->patterns_size*sizeof(uint32_t)];
-    for (uint32_t i = 0; i < parsed->nb_patterns; i++) {
-        //parsed->patterns = (uint32_t *) current;
-        memcpy(pat_buf, current, parsed->patterns_size*sizeof(uint32_t));
-        *parsed->patterns = (uint32_t) *pat_buf;
-        current += parsed->patterns_size*sizeof(uint32_t);
-    }
+    parsed->patterns = (uint32_t *) current;
 
-    // idk really
     if (*current == (char) request_len) return;
 }
 
