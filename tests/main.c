@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "utils.h"
+#include "../project/utils/utils.h"
 
 int main() {
     struct parsed_request parsed;
-    char request[] = "2,1,2,abcdefghijklmnoabcdefghijklmnoabcdefghab";
+    char request[] = "2,2,1,ThisIsAnExample!SomeNetworkLayerExamJump";
     size_t request_len = sizeof(request) - 1;
 
     parse_request(&parsed, request, request_len);
