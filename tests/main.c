@@ -29,7 +29,25 @@ int main() {
     for (uint32_t i = 0; i < parsed.nb_patterns; i++) {
         printf("%d ", parsed.patterns[i]);
     }
-    printf("\n");
+    printf("\n\n");
+
+
+
+    // test_patterns
+    uint32_t *res = (uint32_t *) malloc(UINT32_MAX);
+    uint32_t matrix[16] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+    uint32_t matrix_size = 16;
+    uint32_t patterns_size = 8;
+    uint32_t nb_patterns = 3;
+    uint32_t patterns[24] = {10,20,3,4,50,6,70,8,9,10,11,12,130,14,150,16,170,18,19,200,21,220,23,24};
+
+    test_patterns(matrix, matrix_size, patterns, patterns_size, nb_patterns, res);
+
+    printf("res : ");
+    for (uint32_t i = 0; i < nb_patterns; i++) {
+        printf("%d ", res[i]);
+    }
+    printf("\n\n");
 
     return 0;
 }
