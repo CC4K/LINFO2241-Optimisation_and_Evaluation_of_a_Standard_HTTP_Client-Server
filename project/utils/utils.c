@@ -14,20 +14,17 @@
 void parse_request(struct parsed_request *parsed, char *request, size_t request_len) {
     char *current = request;
     char *comma;
-    // 2,2,1,ThisIsAnExample!SomeNetworkLayerExamJump
 
     // matrices_size
     parsed->matrices_size = strtol(current, &comma, 10);
     if (comma[0] == ',') {
         current = comma+1;
     }
-
     // nb_patterns
     parsed->nb_patterns = strtol(current, &comma, 10);
     if (comma[0] == ',') {
         current = comma+1;
     }
-
     // patterns_size
     parsed->patterns_size = strtol(current, &comma, 10);
     if (comma[0] == ',') {
@@ -37,15 +34,13 @@ void parse_request(struct parsed_request *parsed, char *request, size_t request_
     // mat1
     parsed->mat1 = (uint32_t *) current;
     current += parsed->matrices_size*parsed->matrices_size*sizeof(uint32_t);
-
     // mat2
     parsed->mat2 = (uint32_t *) current;
     current += parsed->matrices_size*parsed->matrices_size*sizeof(uint32_t);
-
     // patterns
     parsed->patterns = (uint32_t *) current;
 
-    if (*current == (char) request_len) return;
+    if (*current == (char) request_len) return; // since request_len needs to be used...
 }
 
 /**
@@ -60,7 +55,7 @@ void parse_request(struct parsed_request *parsed, char *request, size_t request_
  * @note `result` should be modified to the result of the multiplication of the matrices
 */
 void multiply_matrix(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uint32_t K) {
-    // initialize KxK matrix
+    // initialize K*K matrix
     for(uint32_t i = 0; i < K; i++) {
         for(uint32_t j = 0; j < K; j++) {
             result[i*K + j] = 0;
@@ -90,29 +85,20 @@ void multiply_matrix(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uin
  * @note `file` should be modified to contain the encrypted file.
 */
 void test_patterns(uint32_t *matrix, uint32_t matrix_size, uint32_t *patterns, uint32_t pattern_size, uint32_t nb_patterns, uint32_t *res) {
-    uint32_t n = nb_patterns; // 3
-    uint32_t m = matrix_size*matrix_size; // 4*4 = 16
-    res = (uint32_t*) malloc(n * sizeof(uint32_t));
+    uint32_t n = nb_patterns;
+    uint32_t m = matrix_size*matrix_size;
     for (uint32_t i = 0; i < n; i++) res[i] = UINT32_MAX;
-    for (uint32_t i = 0; i < n; i++) printf("%u ", res[i]);
-    printf("WTFIS HAPPENING: %d\n", (m - pattern_size + 1)); // 249 instead of 9 WTF
-    for (uint32_t i = 0; i < (m - pattern_size + 1); i++) { // 0 => 16-8+1 = 9 (COMMENT EST CE QUE I > QUE 8 WTF !!!!!)
-        printf("iiiiiiiii: %d\n", i);
-        for (uint32_t j = 0; j < n; j++) { // 0 => 3
+    for (uint32_t i = 0; i < (m - pattern_size + 1); i++) {
+        for (uint32_t j = 0; j < n; j++) {
             uint32_t dist = 0;
-            uint32_t new_j = j * pattern_size; // j * 8
-            for (uint32_t k = 0; k < pattern_size; k++) { // 0 => 8
+            uint32_t new_j = j * pattern_size;
+            for (uint32_t k = 0; k < pattern_size; k++) {
                 dist += (matrix[i + k] - patterns[new_j + k])*(matrix[i + k] - patterns[new_j + k]);
-                //printf("dist: %d | i: %d | j: %d | k: %d\n", dist, i, j, k); // dist: 0 | i: 16 | j: 0 | k: 0 dist devient 0 ???
             }
-            printf("dist: %d\n", dist);
-            printf("res[%d]: %u\n", j, res[j]);
             uint32_t min = (dist < res[j]) ? dist : res[j];
-            printf("min: %d\n", min);
             res[j] = min;
         }
     }
-    free(res);
 }
 
 /**
@@ -135,4 +121,30 @@ void res_to_string(char *str, uint32_t *res, uint32_t res_size) {
             strcat(str, ",");
         }
     }
+}
+
+// They are all set to 0
+// The answer goes here
+char res_str[65536] = {0};
+//Available intermediary storage use them
+char res_uint[1024] = {0};
+char intermediary_matrix[1024] = {0};
+//!!!WARNING!!! : In your implementation of the actual server the arrays above should be dynamically allocated using ngx_link_func_palloc/ngx_link_func_pcalloc
+
+/**
+ * @brief Applies the complete algorithm
+ *
+ * @param raw_request The raw request as it is received by the server
+ * @param raw_request_len The size of the raw request
+ * @param res_str The output of the function => First return value
+ * @param res_uint Intermeditary storage you can use for the computation of the distance for the pattern before the string transformation
+ * @param intermediary_matrix Param you can use to store the result of the product between the two matrices
+ * @param resp_len the length of the response => Second return value
+ *
+ * @note you can assume that `res_str`, `res_uint` and `intermediary_matrix` are big enough to store what you need
+ * @note res_str has a size of 2**16, res_uint can old 2*10 uint32_t and intermediary_matrix can hold 2*10 uint32_t, this should be more than enough
+ */
+char *complete_algorithm(char *raw_request, uint32_t raw_request_len, char *res_str, uint32_t *res_uint, uint32_t *intermediary_matrix, uint32_t *resp_len) {
+    // 2,1,2,abcdefghijklmnoabcdefghijklmnoabcdefghab
+    return 0;
 }
