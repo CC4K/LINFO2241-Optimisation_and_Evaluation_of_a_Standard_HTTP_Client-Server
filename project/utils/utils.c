@@ -1,11 +1,5 @@
 #include "utils.h"
 
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-
-// Dummy function
-int foo(void) { return 42; }
 
 /**
  * @brief Parses a raw request into a nice struct
@@ -96,14 +90,35 @@ void multiply_matrix(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uin
  * @note `file` should be modified to contain the encrypted file.
 */
 void test_patterns(uint32_t *matrix, uint32_t matrix_size, uint32_t *patterns, uint32_t pattern_size, uint32_t nb_patterns, uint32_t *res) {
-    (void)matrix;
-    (void)matrix_size;
-    (void)patterns;
-    (void)pattern_size;
-    (void)nb_patterns;
-    (void)res;
-    printf("CHANGE ME\n");
+    uint32_t m = matrix_size*matrix_size;
+    uint32_t n = nb_patterns;
+    for (uint32_t i = 0; i < m - pattern_size + 1; i++) {
+        for (uint32_t j = 0; j < n; j++) {
+            uint32_t dist = 0;
+            uint32_t new_j = j * pattern_size;
+            for (uint32_t k = 0; k < pattern_size; k++) {
+                dist += (matrix[i + k] - patterns[new_j + k])*(matrix[i + k] - patterns[new_j + k]);
+            }
+            //res[j] = (uint32_t) min(dist, res[j]); // TODO
+        }
+    }
 }
+/*
+m ← MatrixSideSize2
+n ← NbPatterns
+Initialize result as an array of size n, filled with MAX UINT32
+for i ← 0 to m − SizeOfEachPattern do
+    for j ← 0 to n do
+        dist ← 0
+        new j ← j × SizeOfEachPattern
+        for k ← 0 to SizeOfEachPattern do
+            dist ← dist + (product[i + k] − patterns[new j + k])2
+        end for
+        result[j] ← min (dist, result[j])
+    end for
+end for
+return result
+ */
 
 /**
  * @brief Converts an array of uint32_t to a comma separated string of the numbers
@@ -127,3 +142,36 @@ void res_to_string(char *str, uint32_t *res, uint32_t res_size) {
     }
 }
 
+
+int main() {
+    uint32_t *res = (uint32_t*) malloc(UINT32_MAX);
+    uint32_t patterns_size = 8;
+    uint32_t nb_patterns = 3;
+    uint32_t *patterns = (uint32_t*) malloc(UINT32_MAX);
+
+
+    uint32_t matrix_size = 16;
+    uint32_t *matrix = (uint32_t*) malloc(UINT32_MAX);
+
+
+
+    /*
+    - Mat :
+    {1, 2, 3, 4,
+            5, 6, 7, 8,
+            9, 10, 11, 12,
+            13, 14, 15, 16, }
+    - Patterns :
+    {10, 20, 3, 4, 50, 6, 70, 8, }
+    {9, 10, 11, 12, 130, 14, 150, 16, }
+    {170, 18, 19, 200, 21, 220, 23, 24, }
+    - Patterns_size : 8
+        - Nb_patterns : 3
+        - Expected :
+    {4751, 31914, 104021, }
+    - Actual :
+    {0, 0, 104021, }
+
+    return 0;
+     */
+}
