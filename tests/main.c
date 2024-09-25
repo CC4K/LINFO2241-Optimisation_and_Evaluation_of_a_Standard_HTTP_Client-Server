@@ -49,7 +49,17 @@ int main() {
      */
 
     // 2,1,2,abcdefghijklmnoabcdefghijklmnoabcdefghab
+    char res_str[65536] = {0};
+    //Available intermediary storage use them
+    char res_uint[1024] = {0};
+    char intermediary_matrix[1024] = {0};
+    uint32_t *resp_len;
 
+    char *request = "2,1,2,abcdefghijklmnoabcdefghijklmnoabcdefghab";
+    char *response = complete_algorithm(request, strlen(request), res_str, res_uint, intermediary_matrix, resp_len);
+
+    printf("%s\n", res_str);
+    printf("length: %d", *resp_len);
 
     return 0;
 }

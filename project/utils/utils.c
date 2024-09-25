@@ -137,7 +137,7 @@ char intermediary_matrix[1024] = {0};
  * @param raw_request The raw request as it is received by the server
  * @param raw_request_len The size of the raw request
  * @param res_str The output of the function => First return value
- * @param res_uint Intermeditary storage you can use for the computation of the distance for the pattern before the string transformation
+ * @param res_uint Intermediary storage you can use for the computation of the distance for the pattern before the string transformation
  * @param intermediary_matrix Param you can use to store the result of the product between the two matrices
  * @param resp_len the length of the response => Second return value
  *
@@ -145,6 +145,36 @@ char intermediary_matrix[1024] = {0};
  * @note res_str has a size of 2**16, res_uint can old 2*10 uint32_t and intermediary_matrix can hold 2*10 uint32_t, this should be more than enough
  */
 char *complete_algorithm(char *raw_request, uint32_t raw_request_len, char *res_str, uint32_t *res_uint, uint32_t *intermediary_matrix, uint32_t *resp_len) {
-    // 2,1,2,abcdefghijklmnoabcdefghijklmnoabcdefghab
-    return 0;
+    struct parsed_request *parsed = malloc(sizeof(struct parsed_request));
+    if (parsed == NULL) return NULL;
+    parsed->mat1 = (uint32_t*) malloc(parsed->matrices_size*parsed->matrices_size*sizeof(uint32_t));
+    if (parsed->mat1 == NULL) {
+        free(parsed);
+        return NULL;
+    }
+    parsed->mat2 = (uint32_t*) malloc(parsed->matrices_size*parsed->matrices_size*sizeof(uint32_t));
+    if (parsed->mat2 == NULL) {
+        free(parsed);
+        return NULL;
+    }
+    parsed->patterns = (uint32_t*) malloc(parsed->nb_patterns*parsed->patterns_size*sizeof(uint32_t));
+    if (parsed->patterns == NULL) {
+        free(parsed);
+        return NULL;
+    }
+
+    parse_request(parsed, raw_request, raw_request_len);
+    multiply_matrix(parsed->mat1, parsed->mat2, intermediary_matrix, parsed->matrices_size);
+    uint32_t matrix_size = parsed->matrices_size*parsed->matrices_size;
+    test_patterns(intermediary_matrix, matrix_size, parsed->patterns, parsed->patterns_size, parsed->nb_patterns, res_uint);
+    res_to_string(res_str, res_uint, parsed->nb_patterns);
+    *resp_len = strlen(res_str);
+    //if (resp_len == 0) return 0;
+
+    // now that the answer is in the string we can free everything
+    free(parsed->patterns);
+    free(parsed->mat2);
+    free(parsed->mat1);
+    free(parsed);
+    return res_str;
 }
