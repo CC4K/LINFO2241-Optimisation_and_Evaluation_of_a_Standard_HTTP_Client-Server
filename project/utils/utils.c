@@ -136,6 +136,7 @@ void res_to_string(char *str, uint32_t *res, uint32_t res_size) {
  * @note you can assume that `res_str`, `res_uint` and `intermediary_matrix` are big enough to store what you need
  * @note res_str has a size of 2**16, res_uint can old 2*10 uint32_t and intermediary_matrix can hold 2*10 uint32_t, this should be more than enough
  */
+ /*
 char *complete_algorithm(char *raw_request, uint32_t raw_request_len, char *res_str, uint32_t *res_uint, uint32_t *intermediary_matrix, uint32_t *resp_len) {
     struct parsed_request *parsed = malloc(sizeof(struct parsed_request));
     if (parsed == NULL) return NULL;
@@ -150,3 +151,4 @@ char *complete_algorithm(char *raw_request, uint32_t raw_request_len, char *res_
     free(parsed);
     return res_str;
 }
+*/

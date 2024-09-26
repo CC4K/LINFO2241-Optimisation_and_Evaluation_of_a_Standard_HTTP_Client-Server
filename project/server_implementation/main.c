@@ -1,11 +1,13 @@
 #include <math.h>
-#include <ngx_link_func_module.h>
+#include "../../nginx-link-function/src//ngx_link_func_module.h"
+// #include <ngx_link_func_module.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "utils.h"
+#include "../utils/utils.h"
+// #include "utils.h"
 
 int is_service_on = 0;
 
@@ -31,23 +33,26 @@ int is_service_on = 0;
  * finished. No need to worry about freeing memory :)
  */
 
-static char *body_processing(ngx_link_func_ctx_t *ctx, char *body, size_t body_len,
-                             size_t *resp_len) {
-    /**
-     * TODO: Replace the example code below with your own code.
-     */
+static char *body_processing(ngx_link_func_ctx_t *ctx, char *body, size_t body_len, size_t *resp_len) {
+    struct parsed_request *parsed = ngx_link_func_palloc(sizeof(struct parsed_request));
+    if (parsed == NULL) return NULL;
 
-    // Simply example that always responds with "Hello, World!"
-    // You can define your functions in utils.h and utils.c, and use them here.
-    (void)body;
-    (void)body_len;
-    int bar = foo();
-    printf("bar: %d\n", bar);
-    char hello_world[] = "Hello, World!\n";
-    char *res = ngx_link_func_palloc(ctx, sizeof(hello_world) + 1);
-    strcpy(res, hello_world);
-    *resp_len = strlen(res);
-    return (char *)res;
+    parse_request(parsed, body, body_len);
+
+    char *res_str = (char*) ngx_link_func_palloc(ctx,65536*sizeof(char));
+    //Available intermediary storage use them
+    uint32_t *res_uint = (uint32_t*) ngx_link_func_palloc(ctx, 1024*sizeof(uint32_t));
+    uint32_t *intermediary_matrix = (uint32_t*) ngx_link_func_palloc(ctx, 1024*sizeof(uint32_t));
+    //uint32_t *resp_len = (uint32_t*) malloc(sizeof(uint32_t));
+
+    multiply_matrix(parsed->mat1, parsed->mat2, intermediary_matrix, parsed->matrices_size);
+    test_patterns(intermediary_matrix, parsed->matrices_size, parsed->patterns, parsed->patterns_size, parsed->nb_patterns, res_uint);
+    res_to_string(res_str, res_uint, parsed->nb_patterns);
+    *resp_len = strlen(res_str);
+
+    // now that the answer is in the string we can free everything
+    free(parsed);
+    return res_str;
 }
 
 void main_function(ngx_link_func_ctx_t *ctx) {

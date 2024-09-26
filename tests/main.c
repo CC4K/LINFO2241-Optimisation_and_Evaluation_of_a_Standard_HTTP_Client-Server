@@ -56,7 +56,7 @@ int main() {
     uint32_t *resp_len = (uint32_t*) malloc(sizeof(uint32_t));
 
     char *request = "2,2,2,abcdefghijklmnoabcdefghijklmnoabcdefghababcdefgh";
-    char *response = complete_algorithm(request, strlen(request), res_str, res_uint, intermediary_matrix, resp_len);
+    //char *response = complete_algorithm(request, strlen(request), res_str, res_uint, intermediary_matrix, resp_len);
 
     printf("%s\n", res_str);
     printf("%s\n", response);
