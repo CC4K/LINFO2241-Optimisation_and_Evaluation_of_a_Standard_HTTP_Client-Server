@@ -49,17 +49,18 @@ int main() {
      */
 
     // 2,1,2,abcdefghijklmnoabcdefghijklmnoabcdefghab
-    char res_str[65536] = {0};
+    char *res_str = (char*) malloc(65536*sizeof(char));
     //Available intermediary storage use them
-    char res_uint[1024] = {0};
-    char intermediary_matrix[1024] = {0};
-    uint32_t *resp_len;
+    uint32_t *res_uint = (uint32_t*) malloc(1024*sizeof(uint32_t));
+    uint32_t *intermediary_matrix = (uint32_t*) malloc(1024*sizeof(uint32_t));
+    uint32_t *resp_len = (uint32_t*) malloc(sizeof(uint32_t));
 
-    char *request = "2,1,2,abcdefghijklmnoabcdefghijklmnoabcdefghab";
+    char *request = "2,2,2,abcdefghijklmnoabcdefghijklmnoabcdefghababcdefgh";
     char *response = complete_algorithm(request, strlen(request), res_str, res_uint, intermediary_matrix, resp_len);
 
     printf("%s\n", res_str);
-    printf("length: %d", *resp_len);
+    printf("%s\n", response);
+    printf("length: %d\n", *resp_len);
 
     return 0;
 }
