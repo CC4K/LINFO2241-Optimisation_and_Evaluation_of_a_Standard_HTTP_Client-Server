@@ -43,7 +43,7 @@ static char *body_processing(ngx_link_func_ctx_t *ctx, char *body, size_t body_l
     if (intermediary_matrix == NULL) return NULL;
     uint32_t *res_uint = ngx_link_func_pcalloc(ctx, parsed->nb_patterns*sizeof(uint32_t));
     if (res_uint == NULL) return NULL;
-    char *res_str = ngx_link_func_pcalloc(ctx,(parsed->nb_patterns*parsed->nb_patterns*sizeof(uint32_t))*sizeof(char));
+    char *res_str = ngx_link_func_pcalloc(ctx,((11*parsed->nb_patterns*sizeof(uint32_t))+1));
     if (res_str == NULL) return NULL;
 
     multiply_matrix(parsed->mat1, parsed->mat2, intermediary_matrix, parsed->matrices_size);
