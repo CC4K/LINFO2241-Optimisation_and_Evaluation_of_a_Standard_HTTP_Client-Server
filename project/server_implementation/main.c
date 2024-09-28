@@ -1,13 +1,13 @@
 #include <math.h>
-#include "../../nginx-link-function/src//ngx_link_func_module.h"
-// #include <ngx_link_func_module.h>
+//#include <ngx_link_func_module.h>
+#include "../../nginx-link-function/src/ngx_link_func_module.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+//#include "utils.h"
 #include "../utils/utils.h"
-// #include "utils.h"
 
 int is_service_on = 0;
 
@@ -29,29 +29,28 @@ int is_service_on = 0;
  * allocate memory. Instead, use the function `ngx_link_func_palloc(ctx,
  * number_of_bytes)`. You can also use `ngx_link_func_pcalloc(ctx, number_of_bytes)` 
  * instead of `calloc`. The advantage of this method is that your memory
- * allocation is linked to the request and everything is freed when the resquest
+ * allocation is linked to the request and everything is freed when the request
  * finished. No need to worry about freeing memory :)
  */
 
 static char *body_processing(ngx_link_func_ctx_t *ctx, char *body, size_t body_len, size_t *resp_len) {
-    struct parsed_request *parsed = ngx_link_func_palloc(sizeof(struct parsed_request));
+    struct parsed_request *parsed = ngx_link_func_pcalloc(ctx, sizeof(struct parsed_request));
     if (parsed == NULL) return NULL;
 
     parse_request(parsed, body, body_len);
 
-    char *res_str = (char*) ngx_link_func_palloc(ctx,65536*sizeof(char));
-    //Available intermediary storage use them
-    uint32_t *res_uint = (uint32_t*) ngx_link_func_palloc(ctx, 1024*sizeof(uint32_t));
-    uint32_t *intermediary_matrix = (uint32_t*) ngx_link_func_palloc(ctx, 1024*sizeof(uint32_t));
-    //uint32_t *resp_len = (uint32_t*) malloc(sizeof(uint32_t));
+    uint32_t *intermediary_matrix = ngx_link_func_pcalloc(ctx, parsed->matrices_size*parsed->matrices_size*sizeof(uint32_t));
+    if (intermediary_matrix == NULL) return NULL;
+    uint32_t *res_uint = ngx_link_func_pcalloc(ctx, parsed->nb_patterns*sizeof(uint32_t));
+    if (res_uint == NULL) return NULL;
+    char *res_str = ngx_link_func_pcalloc(ctx,(parsed->nb_patterns*parsed->nb_patterns*sizeof(uint32_t))*sizeof(char));
+    if (res_str == NULL) return NULL;
 
     multiply_matrix(parsed->mat1, parsed->mat2, intermediary_matrix, parsed->matrices_size);
     test_patterns(intermediary_matrix, parsed->matrices_size, parsed->patterns, parsed->patterns_size, parsed->nb_patterns, res_uint);
     res_to_string(res_str, res_uint, parsed->nb_patterns);
     *resp_len = strlen(res_str);
 
-    // now that the answer is in the string we can free everything
-    free(parsed);
     return res_str;
 }
 
