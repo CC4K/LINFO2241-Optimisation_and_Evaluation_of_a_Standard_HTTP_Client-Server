@@ -30,4 +30,5 @@ nginx*/
 **/compile_commands.json 
 **/*.bin
 
-
+wrk2/
+wrk/

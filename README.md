@@ -127,7 +127,7 @@ sudo apt install build-essential libpcre3-dev zlib1g-dev libssl-dev
 ### Fedora
 
 ```bash
-sudo dnf install make automake gcc gcc-c++ kernel-devel pcre-devel zlib-devel libssl47
+sudo dnf install make automake gcc gcc-c++ kernel-devel pcre-devel zlib-devel
 ```
 
 ### ArchLinux/Manjaro (not officially supported)
@@ -266,6 +266,8 @@ There are multiple ways to generate HTTP requests. Later in the project, you wil
 wget localhost:8888 -q -O -
 ```
 
+**_NOTE:_**  for some distribution you may need to use wget -4 localhost:8888 -q -O -.
+
 You should see **Hello, World!** appear in your terminal. Dont forget to first run the server with the `make run_debug` command in another terminal.
 
 Feel free to use whatever means you like for sending requests, it is not part of the evaluation (for now :D).
@@ -276,7 +278,8 @@ Other solutions can be:
 - **[Insomnia](https://insomnia.rest/)**: An application with a graphical user interface
 - **[Postman](https://www.postman.com/)**: Like Insomnia, but it's proprietary software
 
-## Testing your server
+
+## Project 1 - Testing your server
 
 For the first evaluation, you will have to modify the provided server and implement the algorithm described statement of the first project (instructions are on Moodle!).
 
@@ -293,3 +296,47 @@ The expected output is:
 ```bash
 5805837,35882937
 ```
+
+## Project 2 - Performance measurement
+
+### Generate traffic
+
+To measure the performance of your server, you could rely on a script that uses wget to send requests and collects the metrics your are interested in, such as the latency and the throughput. In practice this is not as easy as it sounds. Fortunately there exist tools that can automate that for us. For this project, we will use [WRK2](https://github.com/giltene/wrk2) to generate http traffic. 
+
+WRK can be scripted using [LUA](https://www.lua.org/). The language should be installed by default on recent Ubuntu and Fedora distributions. Don't worry, this language is easy to pick. Small tip: the arrays start at index 1 and not 0, this could be a bit confusing. 
+
+#### Installing WRK
+
+You should install WRK2 by cloning it from [here](https://github.com/giltene/wrk2):
+
+```bash
+# From the root of the project
+git clone git@github.com:giltene/wrk2.git 
+cd wrk2
+make
+```
+
+We provide you with a [script](project/wrk_scripts/simple_scenario.lua) that you can use to generate traffic for your server. You can run it like this:
+
+```bash
+env matsize=64 patterns_size=64 nb_patterns=2 ./wrk2/wrk http://localhost:8888/ -R1024 -s project/wrk_scripts/simple_scenario.lua
+```
+
+There are 3 environment variables used to set the factors. `matsize` is the size of the matrix, `patterns_size` is the size of the patterns and `nb_patterns` is the number of patterns. You can change these values to test your server with different configurations. Additionally, you can change the `-R` parameter which sets the number of requests sent per second.   
+
+### Using NPF
+
+During the practicals, you had the opportunity to use [NPF](https://github.com/tbarbette/npf). As a reminder, here are the correct steps to install npf in a private environment:
+
+```bash
+# Create a venv
+python3 -m venv venv
+# Activate the venv
+. venv/bin/activate 
+# Install npf
+pip install npf
+```
+
+**If you open another terminal, you will have to activate the venv again.**
+
+For the project, you are free to use any tool you want to automate your scripts. NPF is a good choice because it is easy to use and can be used to generate graphs easily, but using bash or Python scripts is fine too. 
