@@ -59,8 +59,11 @@ def launch_and_parse(**params):
         '--latency',
         '--script', './wrk_scripts/simple_scenario.lua'
     ])
-    f.write(str(output))
-    f.close()
+    return output
+    
+    
+    # f.write(str(output))
+    # f.close()
     # should get the number of interest
 
 def design_experiment():
@@ -107,11 +110,52 @@ def launch_experiment(design) -> List[List]:
 x = list(factors.items())[0]
 #The second factor is used as series
 series = list(factors.items())[1]
-print(x)
-print(series)
+# print(x)
+# print(series)
 
 # g = sns.catplot(
 #     data=results, kind="bar",
 #     x=x[0], y="Y", hue=series[0],
 #     errorbar="sd"
 # )
+
+# for factor in factors:
+    # print(factors[factor])
+    # print(subprocess.run(["pwd"]))
+    
+    
+df = design_experiment()
+
+print("df made")
+# print first row of df
+import csv
+import re
+
+
+with open('results.csv', mode='w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerow(['MATSIZE', 'PATTERNS_SIZE', 'NB_PATTERNS', 'Requests/sec', 'Transfer/sec'])
+
+    for i in range(len(df)):
+        print("i: "+str(i))
+        df_params = df.iloc[i]
+        params = df_params.to_dict()
+        
+        # print(params)
+        
+        out = launch_and_parse(**params)
+        # only keep the line that starts with Requests/sec:
+        out = out.decode("utf-8").split("\n")
+        # print(out)
+        request_per_second = -1
+        transfer_per_second = -1
+        for line in out:
+            if line.startswith("Requests/sec:"):
+                match = re.search(r'[-+]?\d*\.\d+|\d+', line)
+                request_per_second = float(match.group())
+            if line.startswith("Transfer/sec:"):
+                match = re.search(r'[-+]?\d*\.\d+|\d+', line)
+                transfer_per_second = float(match.group())
+        # print("Request/sec : "+str(request_per_second)+" / Transfer/sec : "+str(transfer_per_second))
+        writer.writerow([params["MATSIZE"], params["PATTERNS_SIZE"], params["NB_PATTERNS"], request_per_second, transfer_per_second])
+ 
