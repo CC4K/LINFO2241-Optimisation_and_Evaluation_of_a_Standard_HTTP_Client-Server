@@ -5,9 +5,17 @@ import seaborn as sns
 
 # load the CSV file with pandas
 df = pd.read_csv("results.csv", sep=",", header=0, names=["MATSIZE", "PATTERNS_SIZE", "NB_PATTERNS", "THREADS", "CONNECTIONS", "RATE", "Requests/sec", "Transfer/sec"])
-df["Transfer/sec"] = df["Transfer/sec"].str.replace("KB", "")
-df["Transfer/sec"] = df["Transfer/sec"].str.replace("B", "")
-# print(df)
+def convert_transfer_rate(value):
+    if 'MB' in value:
+        return float(value.replace('MB', '')) * 1_000_000
+    elif 'KB' in value:
+        return float(value.replace('KB', '')) * 1_000
+    elif 'B' in value:
+        return float(value.replace('B', ''))
+    else:
+        return float(value)
+
+df["Transfer/sec"] = df["Transfer/sec"].apply(convert_transfer_rate)
 
 sns.set(style="darkgrid")
 
@@ -29,14 +37,14 @@ plot_bool = False
 # pairplot
 plt.figure()
 sns.pairplot(data=df, hue="RATE")
-plt.savefig("measurements/pairplot.png")
+plt.savefig("measurements/pairplot.svg")
 if plot_bool: plt.show()
 # heatmap / correlation
 plt.figure(figsize=(14, 12))
 re = sns.heatmap(df.corr(), annot=True, cmap="coolwarm")
 re.set_xticklabels(re.get_xticklabels(), rotation=0)
 re.set_yticklabels(re.get_yticklabels(), rotation=90)
-plt.savefig("measurements/heatmap.png")
+plt.savefig("measurements/heatmap.svg")
 if plot_bool: plt.show()
 
 ###### MATSIZE ######
