@@ -5,4 +5,4 @@
 # Step 3 : create project/measurements folder if it doesn't exist
 mkdir -p measurements/;
 # Step 4 : run python plot script to plot graphs and save them in project/measurements
-./plot.py
+python3 ./plot.py
