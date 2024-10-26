@@ -3,11 +3,6 @@ from typing import List
 import pandas as pd
 import seaborn as sns
 
-factors = {
-    'MATSIZE': [2**i for i in range(1,4)],
-    'PATTERNS_SIZE': [2**i for i in range(1,4)],
-    'NB_PATTERNS': [2**i for i in range(4)]
-}
 
 # note : make run_release must run in the background
 # from project folder :
@@ -43,8 +38,20 @@ factors = {
 
 # paramètres importants : matsize, patterns_size, nb_patterns, rate, connections, (threads et duration bof bof on pourrait ignorer)
 
+
+factors = {
+'MATSIZE': [32,128,256, 512],
+'PATTERNS_SIZE': [16, 64, 128],
+'NB_PATTERNS': [1, 2, 4],
+'threads': [1, 4, 8],
+'connections': [4, 10, 50],
+'duration': [10,20],
+'rate': [64,256, 512]
+}
+
+
+
 def launch_and_parse(**params):
-    f = open("output.csv", "w")
     output = subprocess.check_output([
         'env',
         'matsize='+str(params["MATSIZE"]),
@@ -52,10 +59,10 @@ def launch_and_parse(**params):
         'nb_patterns='+str(params["NB_PATTERNS"]),
         '../wrk2/wrk',
         'http://localhost:8888/',
-        # '--threads', '4',
-        # '--connections', '5',
-        '--rate', '1024',
-        '--duration', '10s',
+        '--threads', str(params["threads"]),
+        '--connections', str(params["connections"]),
+        '--rate', str(params["rate"]),
+        '--duration', str(params["duration"])+'s',
         '--latency',
         '--script', './wrk_scripts/simple_scenario.lua'
     ])
@@ -134,28 +141,36 @@ import re
 
 with open('results.csv', mode='w', newline='') as file:
     writer = csv.writer(file)
-    writer.writerow(['MATSIZE', 'PATTERNS_SIZE', 'NB_PATTERNS', 'Requests/sec', 'Transfer/sec'])
+    writer.writerow(['MATSIZE', 'PATTERNS_SIZE', 'NB_PATTERNS', 'THREADS', 'CONNECTIONS', 'DURATION', 'RATE', 'Requests/sec', 'Transfer/sec'])
 
     for i in range(len(df)):
         print("i: "+str(i))
         df_params = df.iloc[i]
         params = df_params.to_dict()
-        
-        # print(params)
-        
-        out = launch_and_parse(**params)
-        # only keep the line that starts with Requests/sec:
-        out = out.decode("utf-8").split("\n")
-        # print(out)
-        request_per_second = -1
-        transfer_per_second = -1
-        for line in out:
-            if line.startswith("Requests/sec:"):
-                match = re.search(r'[-+]?\d*\.\d+|\d+', line)
-                request_per_second = float(match.group())
-            if line.startswith("Transfer/sec:"):
-                match = re.search(r'[-+]?\d*\.\d+|\d+', line)
-                transfer_per_second = float(match.group())
-        # print("Request/sec : "+str(request_per_second)+" / Transfer/sec : "+str(transfer_per_second))
-        writer.writerow([params["MATSIZE"], params["PATTERNS_SIZE"], params["NB_PATTERNS"], request_per_second, transfer_per_second])
- 
+        if(i<0):
+            continue
+        if(params["MATSIZE"]**2<params["PATTERNS_SIZE"]+1):
+            continue
+        if(params["threads"]>=params["connections"]):
+            continue
+        try:
+            out = launch_and_parse(**params)
+            # only keep the line that starts with Requests/sec:
+            out = out.decode("utf-8").split("\n")
+            # print(out)
+            request_per_second = -1
+            transfer_per_second = -1
+            for line in out:
+                if line.startswith("Requests/sec:"):
+                    match = re.search(r'[-+]?\d*\.\d+|\d+', line)
+                    request_per_second = float(match.group())
+                if line.startswith("Transfer/sec:"):
+                    match = line.split("Transfer/sec:")[1].replace(' ','')
+                    transfer_per_second = match
+            # print("Request/sec : "+str(request_per_second)+" / Transfer/sec : "+str(transfer_per_second))
+            writer.writerow([params["MATSIZE"], params["PATTERNS_SIZE"], params["NB_PATTERNS"],params["threads"],params["connections"],params["duration"],params["rate"] , request_per_second, transfer_per_second])
+            if(request_per_second<=0):
+                print("test failed"+str(params))
+        except Exception as e:
+            writer.writerow([params["MATSIZE"], params["PATTERNS_SIZE"], params["NB_PATTERNS"],params["threads"],params["connections"],params["duration"],params["rate"] , -1, -1])
+

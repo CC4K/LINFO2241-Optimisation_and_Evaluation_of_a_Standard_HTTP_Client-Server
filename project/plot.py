@@ -46,26 +46,26 @@ sns.scatterplot(data=df, x="MATSIZE", y="Requests/sec", hue="NB_PATTERNS", size=
 plt.xlabel("MATSIZE")
 plt.ylabel("Requests/sec")
 plt.legend(title="NB_PATTERNS")
-plt.savefig("measurements/scatterplot_MATSIZE.png")
+plt.savefig("measurements/scatterplot_MATSIZE.svg")
 if plot_bool: plt.show()
 # boxplot
 plt.figure()
 sns.boxplot(data=df, x="MATSIZE", y="Requests/sec", hue="NB_PATTERNS")
-plt.savefig("measurements/boxplot_MATSIZE.png")
+plt.savefig("measurements/boxplot_MATSIZE.svg")
 if plot_bool: plt.show()
 # stripplot
 plt.figure()
 sns.stripplot(data=df, x="MATSIZE", y="Requests/sec", hue="NB_PATTERNS", dodge=True)
-plt.savefig("measurements/stripplot_MATSIZE.png")
+plt.savefig("measurements/stripplot_MATSIZE.svg")
 if plot_bool: plt.show()
 # jointplot
 plt.figure()
 sns.jointplot(data=df, x="MATSIZE", y="Requests/sec", hue="NB_PATTERNS")
-plt.savefig("measurements/jointplot_MATSIZE.png")
+plt.savefig("measurements/jointplot_MATSIZE.svg")
 if plot_bool: plt.show()
 # jointplot with regression
 plt.figure()
 sns.jointplot(data=df, x="MATSIZE", y="Requests/sec", kind="reg")
-plt.savefig("measurements/jointplot_MATSIZE_regression.png")
+plt.savefig("measurements/jointplot_MATSIZE_regression.svg")
 if plot_bool: plt.show()
 
