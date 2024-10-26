@@ -42,11 +42,14 @@ import seaborn as sns
 factors = {
 'MATSIZE': [32,128,256, 512],
 'PATTERNS_SIZE': [16, 64, 128],
-'NB_PATTERNS': [1, 2, 4],
 'threads': [1, 4, 8],
-'connections': [4, 10, 50],
-'duration': [10,20],
-'rate': [64,256, 512]
+'rate': [64,256, 512],
+
+'NB_PATTERNS': [4],
+'connections': [10],
+'duration': [10],
+# 'NB_PATTERNS': [1, 2, 4],
+# 'duration': [10,20],
 }
 
 
@@ -151,7 +154,7 @@ with open('results.csv', mode='w', newline='') as file:
             continue
         if(params["MATSIZE"]**2<params["PATTERNS_SIZE"]+1):
             continue
-        if(params["threads"]>=params["connections"]):
+        if(params["threads"]>params["connections"]):
             continue
         try:
             out = launch_and_parse(**params)
