@@ -1,43 +1,6 @@
 import subprocess
 from typing import List
 import pandas as pd
-import seaborn as sns
-
-
-# note : make run_release must run in the background
-# from project folder :
-# env matsize=64 patterns_size=64 nb_patterns=2 ../wrk2/wrk http://localhost:8888/ --threads 2 --connections 10 --duration 10s --rate 1024 --latency --script ./wrk_scripts/simple_scenario.lua
-# Request/sec : 234 / Transfer/sec : 36 KB
-
-# env matsize=64 patterns_size=64 nb_patterns=2 ../wrk2/wrk http://localhost:8888/ --threads 1 --connections 100 --duration 10s --rate 1024 --latency --script ./wrk_scripts/simple_scenario.lua
-# Request/sec : 206 / Transfer/sec : 32 KB (connections change un toooooout petit peu)
-
-# env matsize=64 patterns_size=64 nb_patterns=2 ../wrk2/wrk http://localhost:8888/ --threads 1 --connections 10 --duration 10s --rate 2048 --latency --script ./wrk_scripts/simple_scenario.lua
-# Request/sec : 246 / Transfer/sec : 38 KB (augmenter rate fait augmenter)
-
-# env matsize=64 patterns_size=64 nb_patterns=2 ../wrk2/wrk http://localhost:8888/ --threads 1 --connections 10 --duration 10s --rate 512 --latency --script ./wrk_scripts/simple_scenario.lua
-# Request/sec : 218 / Transfer/sec : 34 KB (diminuer rate fait diminuer)
-
-# env matsize=64 patterns_size=64 nb_patterns=2 ../wrk2/wrk http://localhost:8888/ --threads 4 --connections 10 --duration 10s --rate 1024 --latency --script ./wrk_scripts/simple_scenario.lua
-# Request/sec : 272 / Transfer/sec : 42 KB (threads ne change pas)
-
-# env matsize=64 patterns_size=64 nb_patterns=2 ../wrk2/wrk http://localhost:8888/ --threads 1 --connections 10 --duration 60s --rate 1024 --latency --script ./wrk_scripts/simple_scenario.lua
-# Request/sec : 349 / Transfer/sec : 54 KB (duration change bcp)
-
-# env matsize=64 patterns_size=64 nb_patterns=2 ../wrk2/wrk http://localhost:8888/ --duration 10s --rate 1024 --latency --script ./wrk_scripts/simple_scenario.lua
-# Request/sec : 232 / Transfer/sec : 36 KB (ref pour matrix parameters)
-
-# env matsize=1000 patterns_size=64 nb_patterns=2 ../wrk2/wrk http://localhost:8888/ --duration 10s --rate 1024 --latency --script ./wrk_scripts/simple_scenario.lua
-# Request/sec : 232 / Transfer/sec : 36 KB (large matsize is MUCH SLOWER (code crashed with 10000))
-
-# env matsize=64 patterns_size=1000 nb_patterns=2 ../wrk2/wrk http://localhost:8888/ --duration 10s --rate 1024 --latency --script ./wrk_scripts/simple_scenario.lua
-# Request/sec : 29 / Transfer/sec : 4 KB (large patterns_size is MUCH FASTER)
-
-# env matsize=64 patterns_size=64 nb_patterns=32 ../wrk2/wrk http://localhost:8888/ --duration 10s --rate 1024 --latency --script ./wrk_scripts/simple_scenario.lua
-# Request/sec : 21 / Transfer/sec : 7 KB (too much patterns crash so idk)
-
-# paramètres importants : matsize, patterns_size, nb_patterns, rate, connections, (threads et duration bof bof on pourrait ignorer)
-
 
 factors = {
 'MATSIZE': [32,128,256, 512],
@@ -51,8 +14,6 @@ factors = {
 # 'NB_PATTERNS': [1, 2, 4],
 # 'duration': [10,20],
 }
-
-
 
 def launch_and_parse(**params):
     output = subprocess.check_output([
