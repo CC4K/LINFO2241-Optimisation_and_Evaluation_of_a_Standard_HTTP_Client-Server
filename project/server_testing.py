@@ -50,7 +50,7 @@ def design_experiment():
 repeat_count = 3
 df = design_experiment()
 
-print("df made")
+# print("df made")
 # print first row of df
 import csv
 import re
