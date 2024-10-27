@@ -51,7 +51,7 @@ plt.figure()
 sns.scatterplot(data=df, x="MATSIZE", y="Requests/sec", hue="NB_PATTERNS", size="PATTERNS_SIZE", palette="deep")
 plt.xlabel("MATSIZE")
 plt.ylabel("Requests/sec")
-plt.legend(title="NB_PATTERNS")
+plt.legend(title="NB_PATTERNS",loc='upper right',bbox_to_anchor=(0.9, 0.8))
 plt.savefig("measurements/MATSIZE_request_scatterplot.pdf", format="pdf")
 
 # boxplot
@@ -76,7 +76,7 @@ plt.figure()
 sns.scatterplot(data=df, x="MATSIZE", y="Transfer/sec", hue="NB_PATTERNS", size="PATTERNS_SIZE", palette="deep")
 plt.xlabel("MATSIZE")
 plt.ylabel("Transfer/sec")
-plt.legend(title="NB_PATTERNS")
+plt.legend(title="NB_PATTERNS",bbox_to_anchor=(0.9, 0.8))
 plt.savefig("measurements/MATSIZE_transfer_scatterplot.pdf", format="pdf")
 
 # boxplot
@@ -104,7 +104,7 @@ plt.figure()
 sns.scatterplot(data=df, x="PATTERNS_SIZE", y="Requests/sec", hue="NB_PATTERNS", size="MATSIZE", palette="deep")
 plt.xlabel("PATTERNS_SIZE")
 plt.ylabel("Requests/sec")
-plt.legend(title="MATSIZE")
+plt.legend(title="MATSIZE",bbox_to_anchor=(0.9, 0.8))
 plt.savefig("measurements/PATTERNS_SIZE_request_scatterplot.pdf", format="pdf")
 
 # boxplot
@@ -129,7 +129,7 @@ plt.figure()
 sns.scatterplot(data=df, x="PATTERNS_SIZE", y="Transfer/sec", hue="NB_PATTERNS", size="MATSIZE", palette="deep")
 plt.xlabel("PATTERNS_SIZE")
 plt.ylabel("Transfer/sec")
-plt.legend(title="MATSIZE")
+plt.legend(title="MATSIZE",bbox_to_anchor=(0.9, 0.8))
 plt.savefig("measurements/PATTERNS_SIZE_transfer_scatterplot.pdf", format="pdf")
 
 # boxplot
