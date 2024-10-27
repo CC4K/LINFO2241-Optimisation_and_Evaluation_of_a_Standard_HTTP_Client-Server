@@ -72,7 +72,7 @@ with open('results.csv', mode='w', newline='') as file:
             request = []
             transfer = []
             for j in range(repeat_count):
-                print("Test n°"+str(i)+"| Repeat n°"+str(j+1))
+                # print("Test n°"+str(i)+" | Repeat n°"+str(j+1))
                 out = launch_and_parse(**params)
                 # only keep the line that starts with Requests/sec:
                 out = out.decode("utf-8").split("\n")
@@ -84,14 +84,16 @@ with open('results.csv', mode='w', newline='') as file:
                         match = re.search(r'[-+]?\d*\.\d+|\d+', line)
                         request_per_second = float(match.group())
                     if line.startswith("Transfer/sec:"):
-                        match = line.split("Transfer/sec:")[1].replace(' ','')
-                        transfer_per_second = match
+                        match = re.search(r'[-+]?\d*\.\d+|\d+', line)
+                        transfer_per_second = float(match.group())
+                # print(request_per_second)
+                # print(transfer_per_second)
                 request.append(request_per_second)
                 transfer.append(transfer_per_second)
-            rps = sum(request)/repeat_count
-            tps = sum(transfer)/repeat_count
-            # print("Request/sec : "+str(request_per_second)+" / Transfer/sec : "+str(transfer_per_second))
-            writer.writerow([params["MATSIZE"], params["PATTERNS_SIZE"], params["NB_PATTERNS"],params["threads"],params["connections"],params["duration"],params["rate"] , rps, tps])
+            rps = round(sum(request)/repeat_count, 3)
+            tps = round(sum(transfer)/repeat_count, 3)
+            # print("Request/sec : "+str(rps)+"/ Transfer/sec : "+str(tps))
+            writer.writerow([params["MATSIZE"], params["PATTERNS_SIZE"], params["NB_PATTERNS"],params["threads"],params["connections"],params["duration"],params["rate"], rps, tps])
             if(rps<=0):
                 print("test failed"+str(params))
         except Exception as e:

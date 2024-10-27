@@ -5,13 +5,8 @@ import seaborn as sns
 
 # load the CSV file with pandas
 df = pd.read_csv("results.csv", sep=",", header=0, names=["MATSIZE", "PATTERNS_SIZE", "NB_PATTERNS", "THREADS", "CONNECTIONS", "RATE", "Requests/sec", "Transfer/sec"])
-# turn into float to avoid errors
-df["Transfer/sec"] = df["Transfer/sec"].str.replace("KB", "")
-df["Transfer/sec"] = df["Transfer/sec"].str.replace("B", "")
-# change Transfer/sec to float64
-df["Transfer/sec"] = df["Transfer/sec"].astype(float)
-# discard zeros in Requests/sec and Transfer/sec
-df = df[~df.iloc[:, -1].astype(float).eq(0) & ~df.iloc[:, -2].astype(float).eq(0)]
+# discard 0 & -1 in Requests/sec and Transfer/sec
+df = df[~df.iloc[:, -1].astype(float).eq(0) & ~df.iloc[:, -2].astype(float).eq(0) & ~df.iloc[:, -1].astype(float).eq(-1) & ~df.iloc[:, -2].astype(float).eq(-1)]
 # print(df)
 
 plt.rcParams.update({"figure.max_open_warning": 0})
@@ -19,14 +14,6 @@ sns.set(style="darkgrid")
 # parameters = ["MATSIZE", "PATTERNS_SIZE", "NB_PATTERNS", "THREADS", "CONNECTIONS", "RATE"]
 # results = ["Requests/sec", "Transfer/sec"]
 
-
-# most interesting plots for now :
-# 1 heatmap
-# 2 stripplot
-# 3 jointplot
-# 4 scatterplot
-# 5 boxplot
-# 6 pairplot
 
 
 ########## GENERAL ##########
@@ -68,7 +55,6 @@ plt.savefig("measurements/MATSIZE_request_stripplot.svg", format="svg")
 plt.figure()
 sns.jointplot(data=df, x="MATSIZE", y="Requests/sec", hue="NB_PATTERNS")
 plt.savefig("measurements/MATSIZE_request_jointplot.svg", format="svg")
-
 
 
 ## Transfer ##
@@ -122,7 +108,6 @@ plt.savefig("measurements/PATTERNS_SIZE_request_stripplot.svg", format="svg")
 plt.figure()
 sns.jointplot(data=df, x="PATTERNS_SIZE", y="Requests/sec", hue="NB_PATTERNS")
 plt.savefig("measurements/PATTERNS_SIZE_request_jointplot.svg", format="svg")
-
 
 
 ## Transfer ##

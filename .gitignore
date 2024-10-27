@@ -32,3 +32,5 @@ nginx*/
 
 wrk2/
 wrk/
+project/measurements/
+project/results.csv
