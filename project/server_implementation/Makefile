@@ -45,7 +45,7 @@ run_debug: build kill_nginx
 	echo "Application is running in debug mode, this is the prefered mode for development..."
 	../../nginx/install_debug/sbin/nginx -c ../../project/nginx-conf/project.conf -g "error_log /dev/stdout error; daemon off;";
 	
-.SLENT:
+.SILENT:
 run_gdb: build kill_nginx
 	echo "Starting NGINX with GDB..."
 	NGINX_BIN="../../nginx/install_debug/sbin/nginx";\
