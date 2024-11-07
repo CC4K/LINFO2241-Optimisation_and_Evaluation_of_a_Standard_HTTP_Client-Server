@@ -58,19 +58,48 @@ void parse_request(struct parsed_request *parsed, char *request, size_t request_
  *
  * @note `result` should be modified to the result of the multiplication of the matrices
 */
+#define UNROLL
 void multiply_matrix(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uint32_t K) {
     // initialize KxK matrix
-    for(uint32_t i = 0; i < K; i++) {
-        for(uint32_t j = 0; j < K; j++) {
-            result[i*K + j] = 0;
+    #ifdef UNROLL
+        for(uint32_t i = 0; i < K; i++) {
+            uint32_t j;
+            for(j = 0; j < K - 4; j+=4) {
+                result[i*K + j] = 0;
+                result[i*K + j + 1] = 0;
+            }
+            for(; j < K; j++) {
+                result[i*K + j] = 0;
+            }
+              
         }
-    }
+    #else
+        for(uint32_t i = 0; i < K; i++) {
+            for(uint32_t j = 0; j < K; j++) {
+                result[i*K + j] = 0;
+            }
+        }
+    #endif
+
     // fill matrix
     for(uint32_t i = 0; i < K; i++) {
         for(uint32_t j = 0; j < K; j++) {
-            for (uint32_t k = 0; k < K; k++) {
-                result[i*K + j] += matrix1[i*K + k] * matrix2[k*K + j];
-            }
+            #ifdef UNROLL
+                uint32_t k;
+                for(k = 0; k < K - 4; k+=4) {
+                    result[i*K + j] += matrix1[i*K + k] * matrix2[k*K + j];
+                    result[i*K + j] += matrix1[i*K + k + 1] * matrix2[(k + 1)*K + j];
+                    result[i*K + j] += matrix1[i*K + k + 2] * matrix2[(k + 2)*K + j];
+                    result[i*K + j] += matrix1[i*K + k + 3] * matrix2[(k + 3)*K + j];
+                }
+                for(; k < K; k++) {
+                    result[i*K + j] += matrix1[i*K + k] * matrix2[k*K + j];
+                }
+            #else
+                for (uint32_t k = 0; k < K; k++) {
+                    result[i*K + j] += matrix1[i*K + k] * matrix2[k*K + j];
+                }
+            #endif
         }
     }
 }
