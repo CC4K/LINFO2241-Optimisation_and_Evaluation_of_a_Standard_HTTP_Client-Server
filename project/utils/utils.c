@@ -58,10 +58,9 @@ void parse_request(struct parsed_request *parsed, char *request, size_t request_
  *
  * @note `result` should be modified to the result of the multiplication of the matrices
 */
-#define UNROLL
 void multiply_matrix(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uint32_t K) {
     // initialize KxK matrix
-    #ifdef UNROLL
+    #ifdef DUNROLL
         for(uint32_t i = 0; i < K; i++) {
             uint32_t j;
             for(j = 0; j < K - 4; j+=4) {
@@ -81,10 +80,20 @@ void multiply_matrix(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uin
         }
     #endif
 
+#ifdef DCACHE_AWARE
+    for (int i=0; i<K; i++) {
+         for (int k=0; k<K; k++) {
+             int r = matrix1[i*K+k];
+             for (int j=0; j<K; j++){
+                result[i*K+j] += r * matrix2[k*K+j]; 
+             }
+        } 
+    }
+#else
     // fill matrix
     for(uint32_t i = 0; i < K; i++) {
         for(uint32_t j = 0; j < K; j++) {
-            #ifdef UNROLL
+            #ifdef DUNROLL
                 uint32_t k;
                 for(k = 0; k < K - 4; k+=4) {
                     result[i*K + j] += matrix1[i*K + k] * matrix2[k*K + j];
@@ -102,6 +111,7 @@ void multiply_matrix(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uin
             #endif
         }
     }
+    #endif
 }
 
 /**
@@ -120,7 +130,20 @@ void multiply_matrix(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uin
 void test_patterns(uint32_t *matrix, uint32_t matrix_size, uint32_t *patterns, uint32_t pattern_size, uint32_t nb_patterns, uint32_t *res) {
     uint32_t n = nb_patterns; // 3
     uint32_t m = matrix_size*matrix_size; // 4*4 = 16
-    for (uint32_t i = 0; i < n; i++) res[i] = UINT32_MAX;
+    #ifdef DUNROLL
+        uint32_t i;
+        for (i = 0; i <= n - 4; i += 4) {
+            res[i] = UINT32_MAX;
+            res[i + 1] = UINT32_MAX;
+            res[i + 2] = UINT32_MAX;
+            res[i + 3] = UINT32_MAX;
+        }
+        for (; i < n; i++) {
+            res[i] = UINT32_MAX;
+        }
+    #else
+        for (uint32_t i = 0; i < n; i++) res[i] = UINT32_MAX;
+    #endif
     for (uint32_t i = 0; i < (m - pattern_size + 1); i++) {
         for (uint32_t j = 0; j < n; j++) { // 0 => 3
             uint32_t dist = 0;
@@ -145,16 +168,30 @@ void test_patterns(uint32_t *matrix, uint32_t matrix_size, uint32_t *patterns, u
  * @param res_size: The length of the the array `res`
 */
 void res_to_string(char *str, uint32_t *res, uint32_t res_size) { 
-    str[0] = '\0'; // otherwise it writes sh*t in the start
-    for (uint32_t i = 0; i < res_size; i++) {
-        char buffer[12];
-        // number => string_number
-        sprintf(buffer, "%u", res[i]);
-        // string_number => str
-        strcat(str, buffer);
-        // if not last => comma
-        if (i < res_size - 1) {
-            strcat(str, ",");
+   str[0] = '\0';
+    char buffer[11]; 
+    for (size_t i = 0; i < res_size; i++)
+    {
+        if(i==res_size-1){
+            sprintf( buffer, "%d", res[i] );
+            strcat( str, buffer);
+            return;
         }
+        sprintf( buffer, "%d,", res[i] );
+        strcat( str, buffer);
     }
+
+    // base code
+    // str[0] = '\0'; // otherwise it writes sh*t in the start
+    // for (uint32_t i = 0; i < res_size; i++) {
+    //     char buffer[12];
+    //     // number => string_number
+    //     sprintf(buffer, "%u", res[i]);
+    //     // string_number => str
+    //     strcat(str, buffer);
+    //     // if not last => comma
+    //     if (i < res_size - 1) {
+    //         strcat(str, ",");
+    //     }
+    // }
 }

@@ -1,4 +1,6 @@
 #!/bin/bash
+# go to correct directory
+cd ./project
 # Step 1 : start server
 make -C server_implementation/ run_release &
 # Step 2 : run python test script to test and create .csv with parameters and results and save it in project/ folder
