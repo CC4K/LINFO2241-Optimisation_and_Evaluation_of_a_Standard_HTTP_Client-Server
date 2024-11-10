@@ -32,16 +32,24 @@ void parse_request(struct parsed_request *parsed, char *request, size_t request_
         current = comma+1;
     }
 
-    // mat1
-    parsed->mat1 = (uint32_t *) current;
-    current += parsed->matrices_size*parsed->matrices_size*sizeof(uint32_t);
+    #ifdef DBEST
+        uint32_t matrix_size_bytes = parsed->matrices_size * parsed->matrices_size * sizeof(uint32_t);
+        // mat1
+        parsed->mat1 = (uint32_t *) current;
+        current += matrix_size_bytes;
 
-    // mat2
-    parsed->mat2 = (uint32_t *) current;
-    current += parsed->matrices_size*parsed->matrices_size*sizeof(uint32_t);
+        // mat2
+        parsed->mat2 = (uint32_t *) current;
+        current += matrix_size_bytes;
+    #else
+        // mat1
+        parsed->mat1 = (uint32_t *) current;
+        current += parsed->matrices_size*parsed->matrices_size*sizeof(uint32_t);
 
-    // patterns
-    parsed->patterns = (uint32_t *) current;
+        // mat2
+        parsed->mat2 = (uint32_t *) current;
+        current += parsed->matrices_size*parsed->matrices_size*sizeof(uint32_t);
+    #endif
 
     // idk really
     if (*current == (char) request_len) return;
