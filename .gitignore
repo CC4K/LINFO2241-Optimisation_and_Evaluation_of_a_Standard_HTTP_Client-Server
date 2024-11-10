@@ -34,3 +34,5 @@ wrk2/
 wrk/
 project/measurements/
 project/*.csv
+
+project.tar.gz

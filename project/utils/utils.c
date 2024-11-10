@@ -51,6 +51,9 @@ void parse_request(struct parsed_request *parsed, char *request, size_t request_
         current += parsed->matrices_size*parsed->matrices_size*sizeof(uint32_t);
     #endif
 
+    // patterns
+    parsed->patterns = (uint32_t *) current;
+
     // idk really
     if (*current == (char) request_len) return;
 }
@@ -176,18 +179,17 @@ void test_patterns(uint32_t *matrix, uint32_t matrix_size, uint32_t *patterns, u
  * @param res: The array to transform into a string
  * @param res_size: The length of the the array `res`
 */
-void res_to_string(char *str, uint32_t *res, uint32_t res_size) { 
-   str[0] = '\0';
+void res_to_string(char *str, uint32_t *res, uint32_t res_size) {
+    str[0] = '\0';
     char buffer[11]; 
-    for (size_t i = 0; i < res_size; i++)
-    {
-        if(i==res_size-1){
-            sprintf( buffer, "%d", res[i] );
-            strcat( str, buffer);
+    for (size_t i = 0; i < res_size; i++) {
+        if (i == res_size - 1) {
+            sprintf(buffer, "%d", res[i]);
+            strcat(str, buffer);
             return;
         }
-        sprintf( buffer, "%d,", res[i] );
-        strcat( str, buffer);
+        sprintf(buffer, "%d,", res[i]);
+        strcat(str, buffer);
     }
 
     // base code

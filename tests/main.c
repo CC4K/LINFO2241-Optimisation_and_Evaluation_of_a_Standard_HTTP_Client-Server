@@ -28,7 +28,7 @@ int main() {
     for (uint32_t i = 0; i < parsed.nb_patterns; i++) {
         printf("%d ", parsed.patterns[i]);
     }
-    // printf("\n\n");
+    printf("\n\n");
      
     //  test multiply
     uint32_t *result = (uint32_t *) malloc(16*sizeof(uint32_t));
@@ -41,7 +41,7 @@ int main() {
         printf("%d ", result[i]); 
         assert(result[i] == expected_result[i]);
     }
-
+    printf("\n");
     
     // test_patterns
     uint32_t *res = (uint32_t *) malloc(UINT32_MAX);
