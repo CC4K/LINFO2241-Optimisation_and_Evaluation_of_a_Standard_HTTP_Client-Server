@@ -32,7 +32,7 @@ void parse_request(struct parsed_request *parsed, char *request, size_t request_
         current = comma+1;
     }
 
-    #ifdef DBEST
+    #ifdef BEST
         uint32_t matrix_size_bytes = parsed->matrices_size * parsed->matrices_size * sizeof(uint32_t);
         // mat1
         parsed->mat1 = (uint32_t *) current;
@@ -79,10 +79,10 @@ void multiply_matrix(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uin
     // multiply mat1 & mat2
     for (uint32_t i = 0; i < K; i++) {
         for (uint32_t j = 0; j < K; j++) {
-#if (defined(DCACHE_AWARE) && defined(DUNROLL)) || defined(DBEST)
+            #if (defined(CACHE_AWARE) && defined(UNROLL)) || defined(BEST)
             uint32_t k = 0;
             uint32_t sum = 0;
-            for (; k <= K - 8; k += 8) {
+            for (; k + 8 <= K; k += 8) {
                 uint32_t mat1_0 = matrix1[i*K + k + 0];
                 uint32_t mat1_1 = matrix1[i*K + k + 1];
                 uint32_t mat1_2 = matrix1[i*K + k + 2];
@@ -105,16 +105,16 @@ void multiply_matrix(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uin
                 sum += matrix1[i*K + k + 0] * matrix2[j + (k+0)*K];
             }
             result[i*K + j] = sum;
-#elif defined(DCACHE_AWARE) && !defined(DUNROLL)
+            #elif defined(CACHE_AWARE) && !defined(UNROLL)
             uint32_t mat1_ij = matrix1[i*K + j];
             for (uint32_t k = 0; k < K; k++) {
                 result[i*K + k] += mat1_ij * matrix2[j*K + k];
             }
-#endif
-#if !defined(DCACHE_AWARE) && defined(DUNROLL)
+            #endif
+            #if !defined(CACHE_AWARE) && defined(UNROLL)
             uint32_t k = 0;
             uint32_t sum = 0;
-            for (; k <= K - 8; k += 8) {
+            for (; k + 8 <= K; k += 8) {
                 sum += matrix1[i*K + k + 0] * matrix2[j + (k+0)*K];
                 sum += matrix1[i*K + k + 1] * matrix2[j + (k+1)*K];
                 sum += matrix1[i*K + k + 2] * matrix2[j + (k+2)*K];
@@ -128,11 +128,11 @@ void multiply_matrix(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uin
                 sum += matrix1[i*K + k + 0] * matrix2[j + (k+0)*K];
             }
             result[i*K + j] = sum;
-#elif !defined(DCACHE_AWARE) && !defined(DUNROLL) && !defined(DBEST)
+            #elif !defined(CACHE_AWARE) && !defined(UNROLL) && !defined(BEST)
             for (uint32_t k = 0; k < K; k++) {
                 result[i*K + j] += matrix1[i*K + k] * matrix2[k*K + j];
             }
-#endif
+            #endif
         }
     }
 }
@@ -160,9 +160,9 @@ void test_patterns(uint32_t *matrix, uint32_t matrix_size, uint32_t *patterns, u
         for (uint32_t j = 0; j < n; j++) { // 0 => 2
             uint32_t dist = 0;
             uint32_t new_j = j * pattern_size; // j * 16
-#if defined(DUNROLL) || defined(DBEST)
+            #if defined(UNROLL) || defined(BEST)
             uint32_t k = 0;
-            for (; k < pattern_size - 4; k += 4) { // 0 => 16
+            for (; k + 4 < pattern_size; k += 4) { // 0 => 16
                 dist += (matrix[i + k + 0] - patterns[new_j + k + 0])*(matrix[i + k + 0] - patterns[new_j + k + 0]);
                 dist += (matrix[i + k + 1] - patterns[new_j + k + 1])*(matrix[i + k + 1] - patterns[new_j + k + 1]);
                 dist += (matrix[i + k + 2] - patterns[new_j + k + 2])*(matrix[i + k + 2] - patterns[new_j + k + 2]);
@@ -171,11 +171,11 @@ void test_patterns(uint32_t *matrix, uint32_t matrix_size, uint32_t *patterns, u
             for (; k < pattern_size; k++) {
                 dist += (matrix[i + k] - patterns[new_j + k])*(matrix[i + k] - patterns[new_j + k]);
             }
-#else
+            #else
             for (uint32_t k = 0; k < pattern_size; k++) { // 0 => 8
                 dist += (matrix[i + k] - patterns[new_j + k])*(matrix[i + k] - patterns[new_j + k]);
             }
-#endif
+            #endif
             //printf("j = %d\tdist = %d\n", j, dist); PQ CA FAIT TT BUGGER WTF
             uint32_t min = (dist < res[j]) ? dist : res[j];
             res[j] = min;
