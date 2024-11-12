@@ -5,7 +5,7 @@
 
 //#define DUNROLL
 //#define DCACHE_AWARE
-#define BEST
+// #define BEST
 
 void test_multiply_matrix() {
     // initialization
