@@ -41,6 +41,12 @@ void parse_request(struct parsed_request *parsed, char *request, size_t request_
         // mat2
         parsed->mat2 = (uint32_t *) current;
         current += matrix_size_bytes;
+        
+        // patterns
+        parsed->patterns = (uint32_t *) current;
+
+        // idk really
+        if (*current == (char) request_len) return;
     #else
         // mat1
         parsed->mat1 = (uint32_t *) current;
@@ -49,13 +55,13 @@ void parse_request(struct parsed_request *parsed, char *request, size_t request_
         // mat2
         parsed->mat2 = (uint32_t *) current;
         current += parsed->matrices_size*parsed->matrices_size*sizeof(uint32_t);
+        // patterns
+        parsed->patterns = (uint32_t *) current;
+
+        // idk really
+        if (*current == (char) request_len) return;
     #endif
 
-    // patterns
-    parsed->patterns = (uint32_t *) current;
-
-    // idk really
-    if (*current == (char) request_len) return;
 }
 
 /**
@@ -79,7 +85,7 @@ void multiply_matrix(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uin
     // multiply mat1 & mat2
     for (uint32_t i = 0; i < K; i++) {
         for (uint32_t j = 0; j < K; j++) {
-            #if (defined(CACHE_AWARE) && defined(UNROLL)) || defined(BEST)
+            #if defined(BEST)
             uint32_t k = 0;
             uint32_t sum = 0;
             for (; k + 8 <= K; k += 8) {
@@ -105,13 +111,12 @@ void multiply_matrix(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uin
                 sum += matrix1[i*K + k + 0] * matrix2[j + (k+0)*K];
             }
             result[i*K + j] = sum;
-            #elif defined(CACHE_AWARE) && !defined(UNROLL)
+            #elif defined(CACHE_AWARE) 
             uint32_t mat1_ij = matrix1[i*K + j];
             for (uint32_t k = 0; k < K; k++) {
                 result[i*K + k] += mat1_ij * matrix2[j*K + k];
             }
-            #endif
-            #if !defined(CACHE_AWARE) && defined(UNROLL)
+            #elif defined(UNROLL)
             uint32_t k = 0;
             uint32_t sum = 0;
             for (; k + 8 <= K; k += 8) {
@@ -128,7 +133,7 @@ void multiply_matrix(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uin
                 sum += matrix1[i*K + k + 0] * matrix2[j + (k+0)*K];
             }
             result[i*K + j] = sum;
-            #elif !defined(CACHE_AWARE) && !defined(UNROLL) && !defined(BEST)
+            #else
             for (uint32_t k = 0; k < K; k++) {
                 result[i*K + j] += matrix1[i*K + k] * matrix2[k*K + j];
             }
@@ -202,18 +207,4 @@ void res_to_string(char *str, uint32_t *res, uint32_t res_size) {
         sprintf(buffer, "%d,", res[i]);
         strcat(str, buffer);
     }
-
-    // base code
-    // str[0] = '\0'; // otherwise it writes sh*t in the start
-    // for (uint32_t i = 0; i < res_size; i++) {
-    //     char buffer[12];
-    //     // number => string_number
-    //     sprintf(buffer, "%u", res[i]);
-    //     // string_number => str
-    //     strcat(str, buffer);
-    //     // if not last => comma
-    //     if (i < res_size - 1) {
-    //         strcat(str, ",");
-    //     }
-    // }
 }
