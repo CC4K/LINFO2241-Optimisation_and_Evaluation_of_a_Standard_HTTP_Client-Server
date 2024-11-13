@@ -1,7 +1,7 @@
 #include "utils.h"
 
-//#define DUNROLL
-//#define DCACHE_AWARE
+//#define UNROLL
+//#define CACHE_AWARE
 //#define BEST
 
 
@@ -165,9 +165,8 @@ void test_patterns(uint32_t *matrix, uint32_t matrix_size, uint32_t *patterns, u
                 dist += (matrix[i + k] - patterns[new_j + k]) * (matrix[i + k] - patterns[new_j + k]);
             }
             #else
-            for (uint32_t k = 0; k < pattern_size; k++) {  // 0 => 8
-                dist +=
-                    (matrix[i + k] - patterns[new_j + k]) * (matrix[i + k] - patterns[new_j + k]);
+            for (uint32_t k = 0; k < pattern_size; k++) {
+                dist += (matrix[i + k] - patterns[new_j + k]) * (matrix[i + k] - patterns[new_j + k]);
             }
             #endif
             uint32_t min = (dist < res[j]) ? dist : res[j];
