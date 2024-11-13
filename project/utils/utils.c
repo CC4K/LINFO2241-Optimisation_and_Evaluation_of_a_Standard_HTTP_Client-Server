@@ -68,6 +68,12 @@ void multiply_matrix(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uin
                 result[i * K + k + 6] += mat1_ij * matrix2[j * K + k + 6];
                 result[i * K + k + 7] += mat1_ij * matrix2[j * K + k + 7];
             }
+            for (; k + 3 < K; k += 4) {
+                result[i * K + k] += mat1_ij * matrix2[j * K + k];
+                result[i * K + k + 1] += mat1_ij * matrix2[j * K + k + 1];
+                result[i * K + k + 2] += mat1_ij * matrix2[j * K + k + 2];
+                result[i * K + k + 3] += mat1_ij * matrix2[j * K + k + 3];
+            }
             for (; k < K; k++) {
                 result[i * K + k] += mat1_ij * matrix2[j * K + k];
             }
@@ -94,6 +100,12 @@ void test_patterns(uint32_t *matrix, uint32_t matrix_size, uint32_t *patterns, u
                 dist += (matrix[i + k + 5] - patterns[new_j + k + 5]) * (matrix[i + k + 5] - patterns[new_j + k + 5]);
                 dist += (matrix[i + k + 6] - patterns[new_j + k + 6]) * (matrix[i + k + 6] - patterns[new_j + k + 6]);
                 dist += (matrix[i + k + 7] - patterns[new_j + k + 7]) * (matrix[i + k + 7] - patterns[new_j + k + 7]);
+            }
+            for (; k + 3 < pattern_size; k += 4) {
+                dist += (matrix[i + k + 0] - patterns[new_j + k + 0]) * (matrix[i + k + 0] - patterns[new_j + k + 0]);
+                dist += (matrix[i + k + 1] - patterns[new_j + k + 1]) * (matrix[i + k + 1] - patterns[new_j + k + 1]);
+                dist += (matrix[i + k + 2] - patterns[new_j + k + 2]) * (matrix[i + k + 2] - patterns[new_j + k + 2]);
+                dist += (matrix[i + k + 3] - patterns[new_j + k + 3]) * (matrix[i + k + 3] - patterns[new_j + k + 3]);
             }
             for (; k < pattern_size; k++) {
                 dist += (matrix[i + k] - patterns[new_j + k]) * (matrix[i + k] - patterns[new_j + k]);
@@ -126,6 +138,12 @@ void multiply_matrix(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uin
                 sum += matrix1[i * K + k + 5] * matrix2[j + (k + 5) * K];
                 sum += matrix1[i * K + k + 6] * matrix2[j + (k + 6) * K];
                 sum += matrix1[i * K + k + 7] * matrix2[j + (k + 7) * K];
+            }
+            for (; k + 3 < K; k += 4) {
+                sum += matrix1[i * K + k + 0] * matrix2[j + (k + 0) * K];
+                sum += matrix1[i * K + k + 1] * matrix2[j + (k + 1) * K];
+                sum += matrix1[i * K + k + 2] * matrix2[j + (k + 2) * K];
+                sum += matrix1[i * K + k + 3] * matrix2[j + (k + 3) * K];
             }
             for (; k < K; k++) {
                 sum += matrix1[i * K + k + 0] * matrix2[j + (k + 0) * K];
@@ -160,6 +178,12 @@ void test_patterns(uint32_t *matrix, uint32_t matrix_size, uint32_t *patterns, u
                 dist += (matrix[i + k + 5] - patterns[new_j + k + 5]) *(matrix[i + k + 5] - patterns[new_j + k + 5]);
                 dist += (matrix[i + k + 6] - patterns[new_j + k + 6]) *(matrix[i + k + 6] - patterns[new_j + k + 6]);
                 dist += (matrix[i + k + 7] - patterns[new_j + k + 7]) *(matrix[i + k + 7] - patterns[new_j + k + 7]);
+            }
+            for (; k + 3 < pattern_size; k += 4) {
+                dist += (matrix[i + k + 0] - patterns[new_j + k + 0]) *(matrix[i + k + 0] - patterns[new_j + k + 0]);
+                dist += (matrix[i + k + 1] - patterns[new_j + k + 1]) *(matrix[i + k + 1] - patterns[new_j + k + 1]);
+                dist += (matrix[i + k + 2] - patterns[new_j + k + 2]) *(matrix[i + k + 2] - patterns[new_j + k + 2]);
+                dist += (matrix[i + k + 3] - patterns[new_j + k + 3]) *(matrix[i + k + 3] - patterns[new_j + k + 3]);
             }
             for (; k < pattern_size; k++) {
                 dist += (matrix[i + k] - patterns[new_j + k]) * (matrix[i + k] - patterns[new_j + k]);
