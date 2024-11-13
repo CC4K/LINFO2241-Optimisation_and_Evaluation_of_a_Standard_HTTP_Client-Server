@@ -7,6 +7,8 @@
 //#define DCACHE_AWARE
 // #define BEST
 
+#define PERF
+
 void test_multiply_matrix() {
     // initialization
     uint32_t K = 8;
@@ -23,6 +25,7 @@ void test_multiply_matrix() {
     // run function
     multiply_matrix(matrix1, matrix2, intermediary_matrix, K);
 
+    #if !defined(PERF)
     // print result and compare
     for (uint32_t i = 1; i < (K * K)+1; i++) {
         printf("%d\t", intermediary_matrix[i-1]);
@@ -44,6 +47,7 @@ void test_multiply_matrix() {
     }
     if (err) printf("\nIncorrect output\n");
     else printf("\nCorrect output\n");
+    #endif
 
     // end test
     free(matrix1);
@@ -88,17 +92,17 @@ void parse_request_test(){
     size_t request_len = sizeof(request) - 1;
 
     parse_request(&parsed, request, request_len);
-    printf("\nCorrect output\n");
+    // printf("\nCorrect output\n");
 }
 
 int main() {
-    for (size_t i = 0; i < 1000000; i++)
+    for (size_t i = 0; i < 10000000; i++)
     {
-        parse_request_test();
-        // test_multiply_matrix();
+        // parse_request_test();
+        test_multiply_matrix();
     }
     
-
+    printf("done\n");
     // test_test_patterns();
 
     return 0;
