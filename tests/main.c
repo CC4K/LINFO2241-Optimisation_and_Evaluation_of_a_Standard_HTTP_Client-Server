@@ -96,14 +96,9 @@ void parse_request_test(){
 }
 
 int main() {
-    for (size_t i = 0; i < 10000000; i++)
-    {
-        // parse_request_test();
-        test_multiply_matrix();
-    }
-    
-    printf("done\n");
-    // test_test_patterns();
+    parse_request_test();
+    test_test_patterns();
+    test_multiply_matrix();
 
     return 0;
 }

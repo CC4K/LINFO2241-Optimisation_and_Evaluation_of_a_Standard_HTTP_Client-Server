@@ -2,8 +2,7 @@
 
 //#define UNROLL
 //#define CACHE_AWARE
-//#define BEST
-
+// #define BEST
 
 void parse_request(struct parsed_request *parsed, char *request, size_t request_len) {
     char *current = request;
@@ -53,35 +52,57 @@ void parse_request(struct parsed_request *parsed, char *request, size_t request_
 }
 
 #ifdef BEST
+
+#define UNROLL_LOOP_8(result, i, K, mat1_ij, matrix2, j, k) \
+    k=0;\
+    for (; k + 7 < K; k += 8) { \
+        result[i * K + k] += mat1_ij * matrix2[j * K + k]; \
+        result[i * K + k + 1] += mat1_ij * matrix2[j * K + k + 1]; \
+        result[i * K + k + 2] += mat1_ij * matrix2[j * K + k + 2]; \
+        result[i * K + k + 3] += mat1_ij * matrix2[j * K + k + 3]; \
+        result[i * K + k + 4] += mat1_ij * matrix2[j * K + k + 4]; \
+        result[i * K + k + 5] += mat1_ij * matrix2[j * K + k + 5]; \
+        result[i * K + k + 6] += mat1_ij * matrix2[j * K + k + 6]; \
+        result[i * K + k + 7] += mat1_ij * matrix2[j * K + k + 7]; \
+    } \
+    for (; k < K; k++) { \
+        result[i * K + k] += mat1_ij * matrix2[j * K + k]; \
+    }
+
+
+
 void multiply_matrix(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uint32_t K) {
     for (uint32_t i = 0; i < K; i++) {
-        for (uint32_t j = 0; j < K; j++) {
-            uint32_t mat1_ij = matrix1[i * K + j];
-            uint32_t k = 0;
-            for (; k + 7 < K; k += 8) {
-                result[i * K + k] += mat1_ij * matrix2[j * K + k];
-                result[i * K + k + 1] += mat1_ij * matrix2[j * K + k + 1];
-                result[i * K + k + 2] += mat1_ij * matrix2[j * K + k + 2];
-                result[i * K + k + 3] += mat1_ij * matrix2[j * K + k + 3];
-                result[i * K + k + 4] += mat1_ij * matrix2[j * K + k + 4];
-                result[i * K + k + 5] += mat1_ij * matrix2[j * K + k + 5];
-                result[i * K + k + 6] += mat1_ij * matrix2[j * K + k + 6];
-                result[i * K + k + 7] += mat1_ij * matrix2[j * K + k + 7];
-            }
-            for (; k + 3 < K; k += 4) {
-                result[i * K + k] += mat1_ij * matrix2[j * K + k];
-                result[i * K + k + 1] += mat1_ij * matrix2[j * K + k + 1];
-                result[i * K + k + 2] += mat1_ij * matrix2[j * K + k + 2];
-                result[i * K + k + 3] += mat1_ij * matrix2[j * K + k + 3];
-            }
-            for (; k < K; k++) {
-                result[i * K + k] += mat1_ij * matrix2[j * K + k];
-            }
+        uint32_t k = 0;
+        uint32_t j = 0;
+        // for (; j +7< K; j+=8) {
+        //     uint32_t mat1_ij = matrix1[i * K + j];
+        //     UNROLL_LOOP_8(result, i, K, mat1_ij, matrix2, j, k);
+        //     mat1_ij = matrix1[i * K + j+1];
+        //     UNROLL_LOOP_8(result, i, K, mat1_ij, matrix2, j+1, k);
+        //     mat1_ij = matrix1[i * K + j+2];
+        //     UNROLL_LOOP_8(result, i, K, mat1_ij, matrix2, j+2, k);
+        //     mat1_ij = matrix1[i * K + j+3];
+        //     UNROLL_LOOP_8(result, i, K, mat1_ij, matrix2, j+3, k);
+        //     mat1_ij = matrix1[i * K + j+4];
+        //     UNROLL_LOOP_8(result, i, K, mat1_ij, matrix2, j+4, k);
+        //     mat1_ij = matrix1[i * K + j+5];
+        //     UNROLL_LOOP_8(result, i, K, mat1_ij, matrix2, j+5, k);
+        //     mat1_ij = matrix1[i * K + j+6];
+        //     UNROLL_LOOP_8(result, i, K, mat1_ij, matrix2, j+6, k);
+        //     mat1_ij = matrix1[i * K + j+7];
+        //     UNROLL_LOOP_8(result, i, K, mat1_ij, matrix2, j+7, k);
+        // }
+        uint32_t i_K = i*K;
+        for (; j < K; j++) {
+            uint32_t mat1_ij = matrix1[i_K+ j];
+            UNROLL_LOOP_8(result, i, K, mat1_ij, matrix2, j, k);
         }
     }
 }
 
-void test_patterns(uint32_t *matrix, uint32_t matrix_size, uint32_t *patterns, uint32_t pattern_size, uint32_t nb_patterns, uint32_t *res) {
+
+__always_inline void test_patterns(uint32_t *matrix, uint32_t matrix_size, uint32_t *patterns, uint32_t pattern_size, uint32_t nb_patterns, uint32_t *res) {
     uint32_t n = nb_patterns;
     uint32_t m = matrix_size * matrix_size;
     memset(res, UINT32_MAX, n*sizeof(uint32_t));
@@ -101,17 +122,13 @@ void test_patterns(uint32_t *matrix, uint32_t matrix_size, uint32_t *patterns, u
                 dist += (matrix[i + k + 6] - patterns[new_j + k + 6]) * (matrix[i + k + 6] - patterns[new_j + k + 6]);
                 dist += (matrix[i + k + 7] - patterns[new_j + k + 7]) * (matrix[i + k + 7] - patterns[new_j + k + 7]);
             }
-            for (; k + 3 < pattern_size; k += 4) {
-                dist += (matrix[i + k + 0] - patterns[new_j + k + 0]) * (matrix[i + k + 0] - patterns[new_j + k + 0]);
-                dist += (matrix[i + k + 1] - patterns[new_j + k + 1]) * (matrix[i + k + 1] - patterns[new_j + k + 1]);
-                dist += (matrix[i + k + 2] - patterns[new_j + k + 2]) * (matrix[i + k + 2] - patterns[new_j + k + 2]);
-                dist += (matrix[i + k + 3] - patterns[new_j + k + 3]) * (matrix[i + k + 3] - patterns[new_j + k + 3]);
-            }
-            for (; k < pattern_size; k++) {
+            for (; __builtin_expect(k < pattern_size,0); k++) {
                 dist += (matrix[i + k] - patterns[new_j + k]) * (matrix[i + k] - patterns[new_j + k]);
             }
-            uint32_t min = (dist < res[j]) ? dist : res[j];
-            res[j] = min;
+            if(dist < res[j]){
+                res[j] = dist;
+            }
+            
         }
     }
 }
