@@ -34,7 +34,7 @@ int is_service_on = 0;
  */
 
 static char *body_processing(ngx_link_func_ctx_t *ctx, char *body, size_t body_len, size_t *resp_len) {
-    struct parsed_request *parsed = ngx_link_func_pcalloc(ctx, sizeof(struct parsed_request));
+    struct parsed_request *parsed = ngx_link_func_palloc(ctx, sizeof(struct parsed_request));
     if (parsed == NULL) return NULL;
 
     parse_request(parsed, body, body_len);

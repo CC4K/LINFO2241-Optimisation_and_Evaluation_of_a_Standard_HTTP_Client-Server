@@ -2,7 +2,7 @@
 
 //#define UNROLL
 //#define CACHE_AWARE
-// #define BEST
+//#define BEST
 
 void parse_request(struct parsed_request *parsed, char *request, size_t request_len) {
     char *current = request;
@@ -70,7 +70,6 @@ void parse_request(struct parsed_request *parsed, char *request, size_t request_
     }
 
 
-
 void multiply_matrix(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uint32_t K) {
     for (uint32_t i = 0; i < K; i++) {
         uint32_t k = 0;
@@ -128,7 +127,6 @@ __always_inline void test_patterns(uint32_t *matrix, uint32_t matrix_size, uint3
             if(dist < res[j]){
                 res[j] = dist;
             }
-            
         }
     }
 }
