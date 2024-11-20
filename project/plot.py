@@ -2,21 +2,46 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Load the CSV file with pandas
-df = pd.read_csv("results.csv", sep=",", header=0, names=["MATSIZE", "PATTERNS_SIZE", "NB_PATTERNS", "THREADS", "CONNECTIONS", "DURATION", "RATE", "Requests/sec", "Transfer/sec"])
-# print(df.to_string())
-# We removed NB_PATTERNS, CONNECTIONS, DURATION from initial run
-df = df.drop(columns=["NB_PATTERNS", "CONNECTIONS", "DURATION"], axis=1)
-
-# Discard 0 & -1 in Requests/sec and Transfer/sec
-df = df[~df.iloc[:, -1].astype(float).eq(0) & ~df.iloc[:, -2].astype(float).eq(0) & ~df.iloc[:, -1].astype(float).eq(-1) & ~df.iloc[:, -2].astype(float).eq(-1)]
-# print(df.to_string())
-
 plt.rcParams.update({"figure.max_open_warning": 0})
 sns.set(style="darkgrid")
 
+# Load all the CSV file with pandas
+df_1_0 = pd.read_csv("test_case1_basic.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
+df_1_1 = pd.read_csv("test_case1_cache_aware.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
+df_1_2 = pd.read_csv("test_case1_unrolled.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
+df_1_3 = pd.read_csv("test_case1_best.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
+
+df_2_0 = pd.read_csv("test_case2_basic.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
+df_2_1 = pd.read_csv("test_case2_cache_aware.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
+df_2_2 = pd.read_csv("test_case2_unrolled.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
+df_2_3 = pd.read_csv("test_case2_best.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
+
+df_3_0 = pd.read_csv("test_case3_basic.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
+df_3_1 = pd.read_csv("test_case3_cache_aware.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
+df_3_2 = pd.read_csv("test_case3_unrolled.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
+df_3_3 = pd.read_csv("test_case3_best.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
+
+print(df_1_0.to_string())
+print(df_1_1.to_string())
+print(df_1_2.to_string())
+print(df_1_3.to_string())
+print()
+print(df_2_0.to_string())
+print(df_2_1.to_string())
+print(df_2_2.to_string())
+print(df_2_3.to_string())
+print()
+print(df_3_0.to_string())
+print(df_3_1.to_string())
+print(df_3_2.to_string())
+print(df_3_3.to_string())
+print()
 
 
+# TODO
+
+
+"""
 
 ########## GENERAL ##########
 # heatmap / correlation
@@ -279,3 +304,4 @@ plt.ylabel("Transfer/sec [KB]")
 plt.suptitle("Joint scatter plot of transfer/sec by number of requests sent by second and threads", fontsize=10)
 plt.savefig("measurements/RATE_transfer_jointplot.pdf", format="pdf")
 
+"""
