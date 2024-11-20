@@ -40,6 +40,7 @@ def design_experiment(factors):
 #================================================================================================#
 # Test case 1: Small and big matrices
 print("Test case 1: Small and big matrices")
+print("===================================")
 
 factors1 = {
     'MATSIZE': [64, 512],
@@ -78,7 +79,7 @@ with open('test_case1.csv', mode='w', newline='') as file:
                 print("Request/sec of current run: " + str(request_per_second))
                 request.append(request_per_second)
             rps = round(sum(request)/repeat_count, 3)
-            print("Mean of Request/sec: " + str(rps))
+            print("=> Mean of Request/sec: " + str(rps))
             writer.writerow([params["MATSIZE"], params["PATTERNS_SIZE"], params["NB_PATTERNS"], rps])
             if (rps <= 0):
                 print("test failed"+str(params))
@@ -88,6 +89,8 @@ with open('test_case1.csv', mode='w', newline='') as file:
 #================================================================================================#
 # Test case 2: Small and big patterns
 print("\nTest case 2: Small and big patterns")
+print("====================================")
+
 factors2 = {
     'MATSIZE': [64],
     'NB_PATTERNS': [16],
@@ -125,7 +128,7 @@ with open('test_case2.csv', mode='w', newline='') as file:
                 print("Request/sec of current run: " + str(request_per_second))
                 request.append(request_per_second)
             rps = round(sum(request)/repeat_count, 3)
-            print("Mean of Request/sec: " + str(rps))
+            print("=> Mean of Request/sec: " + str(rps))
             writer.writerow([params["MATSIZE"], params["PATTERNS_SIZE"], params["NB_PATTERNS"], rps])
             if (rps <= 0):
                 print("test failed"+str(params))
@@ -135,6 +138,8 @@ with open('test_case2.csv', mode='w', newline='') as file:
 #================================================================================================#
 # Test case 3: Small and large amount of patterns
 print("\nTest case 3: Small and large amount of patterns")
+print("================================================")
+
 factors3 = {
     'MATSIZE': [64],
     'NB_PATTERNS': [8, 128],
@@ -172,10 +177,9 @@ with open('test_case3.csv', mode='w', newline='') as file:
                 print("Request/sec of current run: " + str(request_per_second))
                 request.append(request_per_second)
             rps = round(sum(request)/repeat_count, 3)
-            print("Mean of Request/sec: " + str(rps))
+            print("=> Mean of Request/sec: " + str(rps))
             writer.writerow([params["MATSIZE"], params["PATTERNS_SIZE"], params["NB_PATTERNS"], rps])
             if (rps <= 0):
                 print("test failed"+str(params))
         except Exception as e:
             writer.writerow([params["MATSIZE"], params["PATTERNS_SIZE"], params["NB_PATTERNS"], -1])
-
