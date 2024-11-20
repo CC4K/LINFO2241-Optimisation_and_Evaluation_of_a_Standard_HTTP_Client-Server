@@ -1,11 +1,22 @@
 #!/bin/bash
-# go to correct directory
-cd ./project
-# Step 1 : start server
-make -C server_implementation/ run_release &
-# Step 2 : run python test script to test and create .csv with parameters and results and save it in project/ folder
-python3 ./server_testing.py
-# Step 3 : create project/measurements folder if it doesn't exist
 mkdir -p measurements/
-# Step 4 : run python plot script to plot graphs and save them in project/measurements
-python3 ./plot.py
+
+# no opti for case 1, 2, 3
+make -B -C server_implementation/ run_release &
+python3 ./server_testing.py
+#python3 ./plot.py #<= A DECOMMENTER QUAND plot SCRIPT TERMINE !!!
+
+# cache aware for case 1, 2, 3
+make -B -C server_implementation/ run_release "CFLAGS+=-DCACHE_AWARE" &
+python3 ./server_testing.py
+#python3 ./plot.py #<= A DECOMMENTER QUAND plot SCRIPT TERMINE !!!
+
+# loop unrolling for case 1, 2, 3
+make -B -C server_implementation/ run_release "CFLAGS+=-DUNROLL" &
+python3 ./server_testing.py
+#python3 ./plot.py #<= A DECOMMENTER QUAND plot SCRIPT TERMINE !!!
+
+# best opti for case 1, 2, 3
+make -B -C server_implementation/ run_release "CFLAGS+=-DBEST" &
+python3 ./server_testing.py
+#python3 ./plot.py #<= A DECOMMENTER QUAND plot SCRIPT TERMINE !!!
