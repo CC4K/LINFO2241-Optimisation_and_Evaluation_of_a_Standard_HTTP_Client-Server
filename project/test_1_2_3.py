@@ -53,7 +53,7 @@ factors1 = {
 df = design_experiment(factors1)
 repeat_count = 3
 
-with open('test_case1.csv', mode='w', newline='') as file:
+with open('test1.csv', mode='w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(['MATSIZE', 'NB_PATTERNS', 'PATTERNS_SIZE', 'Requests/sec'])
     for i in range(len(df)):
@@ -101,7 +101,7 @@ factors2 = {
 df = design_experiment(factors2)
 repeat_count = 3
 
-with open('test_case2.csv', mode='w', newline='') as file:
+with open('test2.csv', mode='w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(['MATSIZE', 'NB_PATTERNS', 'PATTERNS_SIZE', 'Requests/sec'])
     for i in range(len(df)):
@@ -149,7 +149,7 @@ factors3 = {
 df = design_experiment(factors3)
 repeat_count = 3
 
-with open('test_case3.csv', mode='w', newline='') as file:
+with open('test3.csv', mode='w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(['MATSIZE', 'NB_PATTERNS', 'PATTERNS_SIZE', 'Requests/sec'])
     for i in range(len(df)):
