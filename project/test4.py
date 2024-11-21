@@ -3,8 +3,6 @@ import pandas as pd
 import csv
 import re
 
-# env matsize=512 nb_patterns=1 patterns_size=8 ./wrk2/wrk http://localhost:8888/ --rate -1 --duration 30s --connections 2 -s project/wrk_scripts/simple_scenario.lua
-
 def launch_and_parse(**params):
     output = subprocess.check_output([
         'env',
@@ -60,7 +58,7 @@ with open('test4.csv', mode='w', newline='') as file:
             request = []
             # print("MATSIZE = " + str(params["MATSIZE"]) + " | NB_PATTERNS = " + str(params["NB_PATTERNS"]) + " | PATTERNS_SIZE = " + str(params["PATTERNS_SIZE"]))
             for j in range(repeat_count):
-                print("Test n°4 | Repeat n°" + str(j+1))
+                # print("Test n°4 | Repeat n°" + str(j+1))
                 out = launch_and_parse(**params)
                 # only keep the line that starts with Requests/sec:
                 out = out.decode("utf-8").split("\n")
@@ -73,7 +71,7 @@ with open('test4.csv', mode='w', newline='') as file:
                 # print("Request/sec of current run: " + str(request_per_second))
                 request.append(request_per_second)
             rps = round(sum(request)/repeat_count, 3)
-            print("=> Mean of Request/sec: " + str(rps) + " <=")
+            # print("=> Mean of Request/sec: " + str(rps) + " <=")
             writer.writerow([params["MATSIZE"], params["NB_PATTERNS"], params["PATTERNS_SIZE"], rps])
             if (rps <= 0):
                 print("test failed"+str(params))

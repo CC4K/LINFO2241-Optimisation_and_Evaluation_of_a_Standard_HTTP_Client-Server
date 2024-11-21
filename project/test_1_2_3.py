@@ -3,8 +3,6 @@ import pandas as pd
 import csv
 import re
 
-# env matsize=512 nb_patterns=1 patterns_size=8 ./wrk2/wrk http://localhost:8888/ --rate -1 --duration 30s --connections 2 -s project/wrk_scripts/simple_scenario.lua
-
 def launch_and_parse(**params):
     output = subprocess.check_output([
         'env',
@@ -39,7 +37,7 @@ def design_experiment(factors):
 #================================================================================================#
 # Test case 1: Small and big matrices
 print("Test case 1: Small and big matrices")
-print("===================================")
+print("-----------------------------------")
 
 factors1 = {
     'MATSIZE': [64, 512],
@@ -64,7 +62,7 @@ with open('test1.csv', mode='w', newline='') as file:
             request = []
             print("MATSIZE = " + str(params["MATSIZE"]) + " | NB_PATTERNS = " + str(params["NB_PATTERNS"]) + " | PATTERNS_SIZE = " + str(params["PATTERNS_SIZE"]))
             for j in range(repeat_count):
-                print("Test n°" + str(i+1) + " | Repeat n°" + str(j+1))
+                # print("Test n°" + str(i+1) + " | Repeat n°" + str(j+1))
                 out = launch_and_parse(**params)
                 # only keep the line that starts with Requests/sec:
                 out = out.decode("utf-8").split("\n")
@@ -74,10 +72,10 @@ with open('test1.csv', mode='w', newline='') as file:
                     if line.startswith("Requests/sec:"):
                         match = re.search(r'[-+]?\d*\.\d+|\d+', line)
                         request_per_second = float(match.group())
-                print("Request/sec of current run: " + str(request_per_second))
+                # print("Request/sec of current run: " + str(request_per_second))
                 request.append(request_per_second)
             rps = round(sum(request)/repeat_count, 3)
-            print("=> Mean of Request/sec: " + str(rps) + " <=")
+            # print("=> Mean of Request/sec: " + str(rps) + " <=")
             writer.writerow([params["MATSIZE"], params["NB_PATTERNS"], params["PATTERNS_SIZE"], rps])
             if (rps <= 0):
                 print("test failed"+str(params))
@@ -87,7 +85,7 @@ with open('test1.csv', mode='w', newline='') as file:
 #================================================================================================#
 # Test case 2: Small and big patterns
 print("\nTest case 2: Small and big patterns")
-print("===================================")
+print("-----------------------------------")
 
 factors2 = {
     'MATSIZE': [64],
@@ -122,10 +120,10 @@ with open('test2.csv', mode='w', newline='') as file:
                     if line.startswith("Requests/sec:"):
                         match = re.search(r'[-+]?\d*\.\d+|\d+', line)
                         request_per_second = float(match.group())
-                print("Request/sec of current run: " + str(request_per_second))
+                # print("Request/sec of current run: " + str(request_per_second))
                 request.append(request_per_second)
             rps = round(sum(request)/repeat_count, 3)
-            print("=> Mean of Request/sec: " + str(rps) + " <=")
+            # print("=> Mean of Request/sec: " + str(rps) + " <=")
             writer.writerow([params["MATSIZE"], params["NB_PATTERNS"], params["PATTERNS_SIZE"], rps])
             if (rps <= 0):
                 print("test failed"+str(params))
@@ -135,7 +133,7 @@ with open('test2.csv', mode='w', newline='') as file:
 #================================================================================================#
 # Test case 3: Small and large amount of patterns
 print("\nTest case 3: Small and large amount of patterns")
-print("===============================================")
+print("-----------------------------------------------")
 
 factors3 = {
     'MATSIZE': [64],
@@ -160,7 +158,7 @@ with open('test3.csv', mode='w', newline='') as file:
             request = []
             print("MATSIZE = " + str(params["MATSIZE"]) + " | NB_PATTERNS = " + str(params["NB_PATTERNS"]) + " | PATTERNS_SIZE = " + str(params["PATTERNS_SIZE"]))
             for j in range(repeat_count):
-                print("Test n°" + str(i+1) + " | Repeat n°" + str(j+1))
+                # print("Test n°" + str(i+1) + " | Repeat n°" + str(j+1))
                 out = launch_and_parse(**params)
                 # only keep the line that starts with Requests/sec:
                 out = out.decode("utf-8").split("\n")
@@ -170,10 +168,10 @@ with open('test3.csv', mode='w', newline='') as file:
                     if line.startswith("Requests/sec:"):
                         match = re.search(r'[-+]?\d*\.\d+|\d+', line)
                         request_per_second = float(match.group())
-                print("Request/sec of current run: " + str(request_per_second))
+                # print("Request/sec of current run: " + str(request_per_second))
                 request.append(request_per_second)
             rps = round(sum(request)/repeat_count, 3)
-            print("=> Mean of Request/sec: " + str(rps) + " <=")
+            # print("=> Mean of Request/sec: " + str(rps) + " <=")
             writer.writerow([params["MATSIZE"], params["NB_PATTERNS"], params["PATTERNS_SIZE"], rps])
             if (rps <= 0):
                 print("test failed"+str(params))

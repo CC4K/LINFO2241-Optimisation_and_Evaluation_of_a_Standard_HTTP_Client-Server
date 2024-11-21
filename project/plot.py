@@ -4,6 +4,7 @@ import seaborn as sns
 plt.rcParams.update({"figure.max_open_warning": 0})
 sns.set_theme(style="darkgrid")
 
+
 #============= Test case 1, 2, 3 =============#
 
 # Load all the CSV file with pandas and add test case numbers
@@ -57,6 +58,7 @@ plt.xlabel("Test case")
 plt.ylabel("Requests/sec")
 plt.title("Bar plot of Requests/sec by test case and optimisation method")
 plt.savefig("measurements/barplot_result_1_2_3.pdf", format="pdf")
+print("barplot_result_1_2_3 generated")
 
 
 
@@ -122,3 +124,4 @@ plt.xlabel("Number of Workers")
 plt.ylabel("Requests/sec")
 plt.title("Bar plot of Requests/sec by # of workers and optimisation method")
 plt.savefig("measurements/barplot_result4.pdf", format="pdf")
+print("barplot_result4 generated")
