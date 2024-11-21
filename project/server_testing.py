@@ -3,7 +3,7 @@ import pandas as pd
 import csv
 import re
 
-# env matsize=64 nb_patterns=16 patterns_size=32 ./wrk2/wrk http://localhost:8888/ --rate -1 --duration 30s --connections 2 -s project/wrk_scripts/simple_scenario.lua
+# env matsize=512 nb_patterns=1 patterns_size=8 ./wrk2/wrk http://localhost:8888/ --rate -1 --duration 30s --connections 2 -s project/wrk_scripts/simple_scenario.lua
 
 def launch_and_parse(**params):
     output = subprocess.check_output([
@@ -62,7 +62,6 @@ with open('test_case1.csv', mode='w', newline='') as file:
         if (i < 0): continue
         try:
             request = []
-            transfer = []
             print("MATSIZE = " + str(params["MATSIZE"]) + " | NB_PATTERNS = " + str(params["NB_PATTERNS"]) + " | PATTERNS_SIZE = " + str(params["PATTERNS_SIZE"]))
             for j in range(repeat_count):
                 print("Test n°" + str(i+1) + " | Repeat n°" + str(j+1))
@@ -111,7 +110,6 @@ with open('test_case2.csv', mode='w', newline='') as file:
         if (i < 0): continue
         try:
             request = []
-            transfer = []
             print("MATSIZE = " + str(params["MATSIZE"]) + " | NB_PATTERNS = " + str(params["NB_PATTERNS"]) + " | PATTERNS_SIZE = " + str(params["PATTERNS_SIZE"]))
             for j in range(repeat_count):
                 print("Test n°" + str(i+1) + " | Repeat n°" + str(j+1))
@@ -160,7 +158,6 @@ with open('test_case3.csv', mode='w', newline='') as file:
         if (i < 0): continue
         try:
             request = []
-            transfer = []
             print("MATSIZE = " + str(params["MATSIZE"]) + " | NB_PATTERNS = " + str(params["NB_PATTERNS"]) + " | PATTERNS_SIZE = " + str(params["PATTERNS_SIZE"]))
             for j in range(repeat_count):
                 print("Test n°" + str(i+1) + " | Repeat n°" + str(j+1))
