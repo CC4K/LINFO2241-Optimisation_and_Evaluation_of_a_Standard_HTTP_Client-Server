@@ -142,6 +142,9 @@ python3 ./test4.py
 mv test4.csv measurements/test_case4_best4.csv
 
 
+echo "Evaluating with perf"...
+sudo bash task4.sh
+
 
 #========================== Plots ==========================#
 echo "Generating plots..."

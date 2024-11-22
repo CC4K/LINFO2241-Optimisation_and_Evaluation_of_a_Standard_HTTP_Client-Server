@@ -7,58 +7,77 @@ sns.set_theme(style="darkgrid")
 
 #============= Test case 1, 2, 3 =============#
 
-# Load all the CSV file with pandas and add test case numbers
+# Load all the CSV file with pandas and add optimisation flags and test sizes
 df_1_0 = pd.read_csv("measurements/test_case1_basic.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
-df_1_0 = df_1_0.assign(Case = [1]*2)
+df_1_0 = df_1_0.assign(Flag = ["No optimisation"]*2)
 df_1_1 = pd.read_csv("measurements/test_case1_cache_aware.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
-df_1_1 = df_1_1.assign(Case = [1]*2)
+df_1_1 = df_1_1.assign(Flag = ["Cache awareness"]*2)
 df_1_2 = pd.read_csv("measurements/test_case1_unrolled.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
-df_1_2 = df_1_2.assign(Case = [1]*2)
+df_1_2 = df_1_2.assign(Flag = ["Loop unrolling"]*2)
 df_1_3 = pd.read_csv("measurements/test_case1_best.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
-df_1_3 = df_1_3.assign(Case = [1]*2)
+df_1_3 = df_1_3.assign(Flag = ["Best optimisation"]*2)
 
 df_2_0 = pd.read_csv("measurements/test_case2_basic.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
-df_2_0 = df_2_0.assign(Case = [2]*2)
+df_2_0 = df_2_0.assign(Flag = ["No optimisation"]*2)
 df_2_1 = pd.read_csv("measurements/test_case2_cache_aware.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
-df_2_1 = df_2_1.assign(Case = [2]*2)
+df_2_1 = df_2_1.assign(Flag = ["Cache awareness"]*2)
 df_2_2 = pd.read_csv("measurements/test_case2_unrolled.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
-df_2_2 = df_2_2.assign(Case = [2]*2)
+df_2_2 = df_2_2.assign(Flag = ["Loop unrolling"]*2)
 df_2_3 = pd.read_csv("measurements/test_case2_best.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
-df_2_3 = df_2_3.assign(Case = [2]*2)
+df_2_3 = df_2_3.assign(Flag = ["Best optimisation"]*2)
 
 df_3_0 = pd.read_csv("measurements/test_case3_basic.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
-df_3_0 = df_3_0.assign(Case = [3]*2)
+df_3_0 = df_3_0.assign(Flag = ["No optimisation"]*2)
 df_3_1 = pd.read_csv("measurements/test_case3_cache_aware.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
-df_3_1 = df_3_1.assign(Case = [3]*2)
+df_3_1 = df_3_1.assign(Flag = ["Cache awareness"]*2)
 df_3_2 = pd.read_csv("measurements/test_case3_unrolled.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
-df_3_2 = df_3_2.assign(Case = [3]*2)
+df_3_2 = df_3_2.assign(Flag = ["Loop unrolling"]*2)
 df_3_3 = pd.read_csv("measurements/test_case3_best.csv", sep=",", header=0, names=["MATSIZE", "NB_PATTERNS", "PATTERNS_SIZE", "Requests/sec"])
-df_3_3 = df_3_3.assign(Case = [3]*2)
+df_3_3 = df_3_3.assign(Flag = ["Best optimisation"]*2)
 
-# add optimisation flags
-df_basic = pd.concat([df_1_0, df_2_0, df_3_0], axis=0)
-df_basic = df_basic.assign(Flag = ["No optimisation"]*6)
-df_cache_aware = pd.concat([df_1_1, df_2_1, df_3_1], axis=0)
-df_cache_aware = df_cache_aware.assign(Flag = ["Cache aware"]*6)
-df_unrolled = pd.concat([df_1_2, df_2_2, df_3_2], axis=0)
-df_unrolled = df_unrolled.assign(Flag = ["Loop unrolling"]*6)
-df_best = pd.concat([df_1_3, df_2_3, df_3_3], axis=0)
-df_best = df_best.assign(Flag = ["Best optimisation"]*6)
+# combine by test case
+df_case1 = pd.concat([df_1_0, df_1_1, df_1_2, df_1_3], axis=0)
+df_case2 = pd.concat([df_2_0, df_2_1, df_2_2, df_2_3], axis=0)
+df_case3 = pd.concat([df_3_0, df_3_1, df_3_2, df_3_3], axis=0)
+# print(df_case1.to_string())
+# print(df_case2.to_string())
+# print(df_case3.to_string())
 
-# all in one
-df = pd.concat([df_basic, df_cache_aware, df_unrolled, df_best], axis=0)
-# print(df.to_string())
-
-# barplot
-plt.figure()
 colors = ['red', 'orange', 'yellow', 'green']
-sns.barplot(data=df, x="Case", y="Requests/sec", hue="Flag", errorbar=None, palette=colors)
-plt.ylim(0)
-plt.xlabel("Test case")
+
+#================ Test case 1 ================#
+plt.figure() # different matrix sizes
+res = sns.barplot(data=df_case1, x="MATSIZE", y="Requests/sec", hue="Flag", palette=colors)
+for i in res.containers: res.bar_label(i, fontsize=6.5)
+plt.xlabel("Matrix Sizes")
 plt.ylabel("Requests/sec")
-plt.title("Bar plot of Requests/sec by test case and optimisation method")
-plt.savefig("measurements/barplot_result_1_2_3.pdf", format="pdf")
-print("barplot_result_1_2_3 generated")
+plt.title("Requests/sec by matrix sizes for every optimisation method")
+plt.savefig("measurements/barplot_result1.pdf", format="pdf")
+# plt.savefig("measurements/barplot_result1.png")
+print("barplot_result1 generated")
+
+#================ Test case 2 ================#
+plt.figure() # different patterns sizes
+res = sns.barplot(data=df_case2, x="PATTERNS_SIZE", y="Requests/sec", hue="Flag", palette=colors)
+for i in res.containers: res.bar_label(i, fontsize=6.5)
+plt.xlabel("Patterns Sizes")
+plt.ylabel("Requests/sec")
+plt.title("Requests/sec by patterns sizes for every optimisation method")
+plt.savefig("measurements/barplot_result2.pdf", format="pdf")
+# plt.savefig("measurements/barplot_result2.png")
+print("barplot_result2 generated")
+
+#================ Test case 3 ================#
+plt.figure() # different nb of patterns
+res = sns.barplot(data=df_case3, x="NB_PATTERNS", y="Requests/sec", hue="Flag", palette=colors)
+for i in res.containers: res.bar_label(i, fontsize=6.5)
+plt.xlabel("Number of Patterns")
+plt.ylabel("Requests/sec")
+plt.title("Requests/sec by number of patterns for every optimisation method")
+plt.savefig("measurements/barplot_result3.pdf", format="pdf")
+# plt.savefig("measurements/barplot_result3.png")
+print("barplot_result3 generated")
+
 
 
 
@@ -117,11 +136,11 @@ df4 = pd.concat([df_basic4, df_cache_aware4, df_unrolled4, df_best4], axis=0)
 
 # barplot
 plt.figure()
-colors = ['red', 'orange', 'yellow', 'green']
-sns.barplot(data=df4, x="Worker", y="Requests/sec", hue="Flag", errorbar=None, palette=colors)
-plt.ylim(0)
+res = sns.barplot(data=df4, x="Worker", y="Requests/sec", hue="Flag", errorbar=None, palette=colors)
+for i in res.containers: res.bar_label(i, fontsize=6.5)
 plt.xlabel("Number of Workers")
 plt.ylabel("Requests/sec")
-plt.title("Bar plot of Requests/sec by # of workers and optimisation method")
+plt.title("Requests/sec by number of workers for every optimisation method")
 plt.savefig("measurements/barplot_result4.pdf", format="pdf")
+# plt.savefig("measurements/barplot_result4.png")
 print("barplot_result4 generated")
