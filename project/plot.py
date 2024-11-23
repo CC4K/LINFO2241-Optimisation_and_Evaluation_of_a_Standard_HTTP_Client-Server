@@ -47,8 +47,9 @@ colors = ['red', 'orange', 'yellow', 'green']
 
 #================ Test case 1 ================#
 plt.figure() # different matrix sizes
-res = sns.barplot(data=df_case1, x="MATSIZE", y="Requests/sec", hue="Flag", palette=colors)
+res = sns.barplot(data=df_case1, x="MATSIZE", y="Requests/sec", hue="Flag", palette=colors, edgecolor='black')
 for i in res.containers: res.bar_label(i, fontsize=6.5)
+plt.legend(title="Optimisation method")
 plt.xlabel("Matrix Sizes")
 plt.ylabel("Requests/sec")
 plt.title("Requests/sec by matrix sizes for every optimisation method")
@@ -58,8 +59,9 @@ print("barplot_result1 generated")
 
 #================ Test case 2 ================#
 plt.figure() # different patterns sizes
-res = sns.barplot(data=df_case2, x="PATTERNS_SIZE", y="Requests/sec", hue="Flag", palette=colors)
+res = sns.barplot(data=df_case2, x="PATTERNS_SIZE", y="Requests/sec", hue="Flag", palette=colors, edgecolor='black')
 for i in res.containers: res.bar_label(i, fontsize=6.5)
+plt.legend(title="Optimisation method")
 plt.xlabel("Patterns Sizes")
 plt.ylabel("Requests/sec")
 plt.title("Requests/sec by patterns sizes for every optimisation method")
@@ -69,8 +71,9 @@ print("barplot_result2 generated")
 
 #================ Test case 3 ================#
 plt.figure() # different nb of patterns
-res = sns.barplot(data=df_case3, x="NB_PATTERNS", y="Requests/sec", hue="Flag", palette=colors)
+res = sns.barplot(data=df_case3, x="NB_PATTERNS", y="Requests/sec", hue="Flag", palette=colors, edgecolor='black')
 for i in res.containers: res.bar_label(i, fontsize=6.5)
+plt.legend(title="Optimisation method")
 plt.xlabel("Number of Patterns")
 plt.ylabel("Requests/sec")
 plt.title("Requests/sec by number of patterns for every optimisation method")
@@ -136,7 +139,7 @@ df4 = pd.concat([df_basic4, df_cache_aware4, df_unrolled4, df_best4], axis=0)
 
 # barplot
 plt.figure()
-res = sns.barplot(data=df4, x="Worker", y="Requests/sec", hue="Flag", errorbar=None, palette=colors)
+res = sns.barplot(data=df4, x="Worker", y="Requests/sec", hue="Flag", errorbar=None, palette=colors, edgecolor='black')
 for i in res.containers: res.bar_label(i, fontsize=6.5)
 plt.xlabel("Number of Workers")
 plt.ylabel("Requests/sec")
