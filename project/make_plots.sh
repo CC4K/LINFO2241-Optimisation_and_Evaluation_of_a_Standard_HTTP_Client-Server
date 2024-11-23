@@ -44,24 +44,32 @@ echo "NB_WORKER = 1"
 echo "-------------"
 python3 ./test4.py
 mv test4.csv measurements/test_case4_basic1.csv
+make -C server_implementation/ kill_nginx
+wait
 
 make -B -C server_implementation/ run_release NB_WORKER=2 &
 echo "NB_WORKER = 2"
 echo "-------------"
 python3 ./test4.py
 mv test4.csv measurements/test_case4_basic2.csv
+make -C server_implementation/ kill_nginx
+wait
 
 make -B -C server_implementation/ run_release NB_WORKER=4 &
 echo "NB_WORKER = 4"
 echo "-------------"
 python3 ./test4.py
 mv test4.csv measurements/test_case4_basic3.csv
+make -C server_implementation/ kill_nginx
+wait
 
 make -B -C server_implementation/ run_release NB_WORKER=8 &
 echo "NB_WORKER = 8"
 echo "-------------"
 python3 ./test4.py
 mv test4.csv measurements/test_case4_basic4.csv
+make -C server_implementation/ kill_nginx
+wait
 
 
 echo "Case 4, cache awareness optimization"
@@ -70,24 +78,32 @@ echo "NB_WORKER = 1"
 echo "-------------"
 python3 ./test4.py
 mv test4.csv measurements/test_case4_cache_aware1.csv
+make -C server_implementation/ kill_nginx
+wait
 
 make -B -C server_implementation/ run_release "CFLAGS+=-DCACHE_AWARE" NB_WORKER=2 &
 echo "NB_WORKER = 2"
 echo "-------------"
 python3 ./test4.py
 mv test4.csv measurements/test_case4_cache_aware2.csv
+make -C server_implementation/ kill_nginx
+wait
 
 make -B -C server_implementation/ run_release "CFLAGS+=-DCACHE_AWARE" NB_WORKER=4 &
 echo "NB_WORKER = 4"
 echo "-------------"
 python3 ./test4.py
 mv test4.csv measurements/test_case4_cache_aware3.csv
+make -C server_implementation/ kill_nginx
+wait
 
 make -B -C server_implementation/ run_release "CFLAGS+=-DCACHE_AWARE" NB_WORKER=8 &
 echo "NB_WORKER = 8"
 echo "-------------"
 python3 ./test4.py
 mv test4.csv measurements/test_case4_cache_aware4.csv
+make -C server_implementation/ kill_nginx
+wait
 
 
 echo "Case 4, loop unrolling"
@@ -96,24 +112,32 @@ echo "NB_WORKER = 1"
 echo "-------------"
 python3 ./test4.py
 mv test4.csv measurements/test_case4_unrolled1.csv
+make -C server_implementation/ kill_nginx
+wait
 
 make -B -C server_implementation/ run_release "CFLAGS+=-DUNROLL" NB_WORKER=2 &
 echo "NB_WORKER = 2"
 echo "-------------"
 python3 ./test4.py
 mv test4.csv measurements/test_case4_unrolled2.csv
+make -C server_implementation/ kill_nginx
+wait
 
 make -B -C server_implementation/ run_release "CFLAGS+=-DUNROLL" NB_WORKER=4 &
 echo "NB_WORKER = 4"
 echo "-------------"
 python3 ./test4.py
 mv test4.csv measurements/test_case4_unrolled3.csv
+make -C server_implementation/ kill_nginx
+wait
 
 make -B -C server_implementation/ run_release "CFLAGS+=-DUNROLL" NB_WORKER=8 &
 echo "NB_WORKER = 8"
 echo "-------------"
 python3 ./test4.py
 mv test4.csv measurements/test_case4_unrolled4.csv
+make -C server_implementation/ kill_nginx
+wait
 
 
 echo "Case 4, best optimization"
@@ -122,24 +146,32 @@ echo "NB_WORKER = 1"
 echo "-------------"
 python3 ./test4.py
 mv test4.csv measurements/test_case4_best1.csv
+make -C server_implementation/ kill_nginx
+wait
 
 make -B -C server_implementation/ run_release "CFLAGS+=-DBEST" NB_WORKER=2 &
 echo "NB_WORKER = 2"
 echo "-------------"
 python3 ./test4.py
 mv test4.csv measurements/test_case4_best2.csv
+make -C server_implementation/ kill_nginx
+wait
 
 make -B -C server_implementation/ run_release "CFLAGS+=-DBEST" NB_WORKER=4 &
 echo "NB_WORKER = 4"
 echo "-------------"
 python3 ./test4.py
 mv test4.csv measurements/test_case4_best3.csv
+make -C server_implementation/ kill_nginx
+wait
 
 make -B -C server_implementation/ run_release "CFLAGS+=-DBEST" NB_WORKER=8 &
 echo "NB_WORKER = 8"
 echo "-------------"
 python3 ./test4.py
 mv test4.csv measurements/test_case4_best4.csv
+make -C server_implementation/ kill_nginx
+wait
 
 
 echo "Evaluating with perf"...
