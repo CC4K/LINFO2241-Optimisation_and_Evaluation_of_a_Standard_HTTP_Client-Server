@@ -143,6 +143,7 @@ df4 = pd.concat([df_basic4, df_cache_aware4, df_unrolled4, df_best4], axis=0)
 plt.figure()
 res = sns.barplot(data=df4, x="Worker", y="Requests/sec", hue="Flag", errorbar=None, palette=colors, edgecolor='black')
 for i in res.containers: res.bar_label(i, fontsize=6.5)
+plt.legend(title="Optimisation method")
 plt.xlabel("Number of Workers")
 plt.ylabel("Requests/sec")
 plt.title("Requests/sec by number of workers for every optimisation method")
@@ -212,12 +213,12 @@ def plot_perf(data, metric, ylabel, filename):
         bar_x = bar.get_x() + bar.get_width() / 2
         plt.errorbar(bar_x, bar.get_height(), yerr=std_dev, fmt='none', c='black', capsize=5)
 
+    plt.legend(title="Optimisation method")
     res.set_xlabel("Number of Workers")
     res.set_ylabel(ylabel)
     res.set_title(f"{ylabel} by Number of Workers for every optimisation method")
     plt.legend(title="Flag", loc='upper left') 
     plt.savefig(filename, format="pdf")
-    # plt.show()
 
 # Plot all metrics
 plot_perf(plot_data, 'Branch Miss Rate', "Branch Miss Rate", "measurements/barplot_result5.pdf")
