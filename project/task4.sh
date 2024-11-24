@@ -32,7 +32,7 @@ for CFLAG in "${CFLAGS[@]}"; do
             wait
             
             # Generate the CSV output and rename it
-            python3 parse_task4.py $NB_WORKER
+            python3 parse_perf.py $NB_WORKER 4
             mv output.csv "output_${NB_WORKER}_${i}.csv"
             
             if [ $i -eq 1 ] && [ "${NB_WORKER}" == "${NB_WORKERS[0]}" ]; then

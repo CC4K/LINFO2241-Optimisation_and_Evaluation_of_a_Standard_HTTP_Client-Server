@@ -13,7 +13,7 @@ def launch_and_parse(**params):
         'http://localhost:8888/',
         '--rate', str(params["rate"]),
         '--duration', str(params["duration"])+'s',
-        # '--connections', str(params["connections"]),
+        '--connections', str(params["connections"]),
         '--latency',
         '--script', './wrk_scripts/simple_scenario.lua'
     ])
@@ -40,8 +40,8 @@ factors = {
     'NB_PATTERNS': [1],
     'PATTERNS_SIZE': [8],
     'rate': [-1],
-    'duration': [30]
-    # 'connections': [2]
+    'duration': [30],
+    'connections': [8]
 }
 
 df = design_experiment(factors)

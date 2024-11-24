@@ -2,34 +2,58 @@
 
 mkdir -p measurements/
 
-#==================== Test case 1, 2, 3 ====================#
-echo "Case 1, 2, 3, no optimization"
-make -B -C server_implementation/ run_release &
-python3 ./test_1_2_3.py
-mv test1.csv measurements/test_case1_basic.csv
-mv test2.csv measurements/test_case2_basic.csv
-mv test3.csv measurements/test_case3_basic.csv
+# #==================== Test case 1, 2, 3 ====================#
 
-echo "Case 1, 2, 3, cache awareness optimization"
-make -B -C server_implementation/ run_release "CFLAGS+=-DCACHE_AWARE" &
-python3 ./test_1_2_3.py
-mv test1.csv measurements/test_case1_cache_aware.csv
-mv test2.csv measurements/test_case2_cache_aware.csv
-mv test3.csv measurements/test_case3_cache_aware.csv
 
-echo "Case 1, 2, 3, loop unrolling optimization"
-make -B -C server_implementation/ run_release "CFLAGS+=-DUNROLL" &
-python3 ./test_1_2_3.py
-mv test1.csv measurements/test_case1_unrolled.csv
-mv test2.csv measurements/test_case2_unrolled.csv
-mv test3.csv measurements/test_case3_unrolled.csv
+# #======== BASIC #========
 
-echo "Case 1, 2, 3, best optimization"
-make -B -C server_implementation/ run_release "CFLAGS+=-DBEST" &
-python3 ./test_1_2_3.py
-mv test1.csv measurements/test_case1_best.csv
-mv test2.csv measurements/test_case2_best.csv
-mv test3.csv measurements/test_case3_best.csv
+run_tests() {
+    case_name=$1
+    cflags=$2
+
+    echo "Case 1, 2, 3, ${case_name} optimization"
+
+    for i in 1 2 3; do
+        (perf stat -e task-clock,cycles,instructions,branches,branch-misses,L1-dcache-loads,L1-dcache-load-misses,stalled-cycles-frontend -D 2000 \
+        make -B -C server_implementation/ run_release ${cflags} \
+        > "output.txt" 2>&1) &
+        sleep 1
+        python3 ./test_1_2_3.py $i
+        make -C server_implementation/ kill_nginx
+        wait
+        python3 parse_perf.py 1 $i
+        mv output.csv test_case$i.csv
+    done
+
+    combine_and_move_csv "${case_name}"
+}
+
+combine_and_move_csv() {
+    case_name=$1
+
+    # Extract the header from the first file
+    head -n 1 test_case1.csv > combined_tests.csv
+
+    # Append the content of all files excluding the header
+    for i in 1 2 3; do
+        tail -n +2 test_case$i.csv >> combined_tests.csv
+        rm test_case$i.csv
+    done
+
+    mv combined_tests.csv measurements/test_case1_2_3_${case_name}.csv
+
+    for i in 1 2 3; do
+        mv test$i.csv measurements/test_case${i}_${case_name}.csv
+    done
+}
+
+# Run tests for different cases
+run_tests "basic" ""
+run_tests "cache_aware" "CFLAGS+=-DCACHE_AWARE"
+run_tests "unrolled" "CFLAGS+=-DUNROLL"
+run_tests "best" "CFLAGS+=-DBEST"
+
+
 
 
 
@@ -182,4 +206,7 @@ sudo bash task4.sh
 echo "Generating plots..."
 python3 ./plot.py
 echo "Plots generated"
+
+
+chmod -R a+rw .
 echo "End of script"

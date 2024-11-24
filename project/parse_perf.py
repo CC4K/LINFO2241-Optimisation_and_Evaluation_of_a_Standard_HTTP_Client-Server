@@ -2,12 +2,14 @@ import csv
 import sys
 
 # Ensure NB_WORKERS is passed as an argument
-if len(sys.argv) != 2:
-    print("Usage: python parse_task4.py <NB_WORKERS>")
+if len(sys.argv) != 3:
+    print("Usage: python parse_perf.py <NB_WORKERS> <TEST_CASE>")
     sys.exit(1)
 
-# Get NB_WORKERS from command-line arguments
+# Get NB_WORKERS and TEST_CASE from command-line arguments
 nb_workers = sys.argv[1]
+test_case = sys.argv[2]
+
 
 input_file = 'output.txt'
 output_file = 'output.csv'
@@ -33,8 +35,8 @@ with open(input_file, 'r') as infile:
 
 data_lines = [line for line in lines if any(metric in line for metric in metrics) and "stalled cycles" not in line]
 
-csv_headers = ['NB_WORKERS']
-csv_data = [nb_workers]
+csv_headers = ['NB_WORKERS', 'TEST_CASE']
+csv_data = [nb_workers, test_case]
 
 for line in data_lines:
     parsed_data = parse_line(line)
