@@ -52,7 +52,9 @@ for i in res.containers: res.bar_label(i, fontsize=6.5)
 plt.legend(title="Optimisation method")
 plt.xlabel("Matrix Sizes")
 plt.ylabel("Requests/sec")
-plt.title("Requests/sec by matrix sizes for every optimisation method")
+plt.title("Requests/sec by matrix sizes for every optimisation method (log scale)")
+plt.yscale('log')
+
 plt.savefig("measurements/barplot_result1.pdf", format="pdf")
 # plt.savefig("measurements/barplot_result1.png")
 print("barplot_result1 generated")
@@ -147,3 +149,78 @@ plt.title("Requests/sec by number of workers for every optimisation method")
 plt.savefig("measurements/barplot_result4.pdf", format="pdf")
 # plt.savefig("measurements/barplot_result4.png")
 print("barplot_result4 generated")
+
+
+#================ PERF tests ================#
+
+
+
+files = [
+    ("measurements/test_case4_basic.csv", "Basic"),
+    ("measurements/test_case4_cacheaware.csv", "Cache Aware"),
+    ("measurements/test_case4_unroll.csv", "Unroll"),
+    ("measurements/test_case4_best.csv", "Best")
+]
+
+data_frames = []
+
+for dataset in files:
+    df = pd.read_csv(dataset[0])
+    df['Dataset'] = dataset[1] 
+    
+    # Calculate rates
+    df['Branch Miss Rate'] = df[' (branch-misses)'] / df[' (branches)']
+    df['L1 Miss Rate'] = df[' (L1-dcache-load-misses)'] / df[' (L1-dcache-loads)']
+    df['Stalled Cycles'] = df[' (stalled-cycles-frontend)']
+    
+    data_frames.append(df)
+
+combined_df = pd.concat(data_frames)
+
+metrics = ['Branch Miss Rate', 'L1 Miss Rate', 'Stalled Cycles']
+plot_data = combined_df.groupby(['NB_WORKERS', 'Dataset'])[metrics].agg(['mean', 'std']).reset_index()
+
+plot_data.columns = ['NB_WORKERS', 'Dataset'] + [
+    f"{metric}_{agg}" for metric in metrics for agg in ['mean', 'std']
+]
+
+# hue labels
+hue_order = [label for _, label in files]
+
+def plot_perf(data, metric, ylabel, filename):
+    plt.figure(figsize=(10, 6))
+    res = sns.barplot(
+        data=data, 
+        x='NB_WORKERS', 
+        y=f'{metric}_mean', 
+        hue='Dataset', 
+        hue_order=hue_order, 
+        palette=colors, 
+        edgecolor='black',
+        ci=None
+    )
+    
+    # error bars
+    for i, bar in enumerate(res.patches):
+        group_idx = i % len(hue_order)  # Get corresponding group index
+        nb_workers = data['NB_WORKERS'].iloc[i // len(hue_order)]
+        dataset = hue_order[group_idx]
+        std_dev = data.loc[
+            (data['NB_WORKERS'] == nb_workers) & (data['Dataset'] == dataset),
+            f'{metric}_std'
+        ].values[0]
+        bar_x = bar.get_x() + bar.get_width() / 2
+        plt.errorbar(bar_x, bar.get_height(), yerr=std_dev, fmt='none', c='black', capsize=5)
+
+    res.set_xlabel("Number of Workers")
+    res.set_ylabel(ylabel)
+    res.set_title(f"{ylabel} by Number of Workers for every optimisation method")
+    plt.legend(title="Flag", loc='upper left') 
+    plt.savefig(filename, format="pdf")
+    # plt.show()
+
+# Plot all metrics
+plot_perf(plot_data, 'Branch Miss Rate', "Branch Miss Rate", "measurements/barplot_result5.pdf")
+plot_perf(plot_data, 'L1 Miss Rate', "L1 Miss Rate", "measurements/barplot_result6.pdf")
+plot_perf(plot_data, 'Stalled Cycles', "Stalled Cycles", "measurements/barplot_result7.pdf")
+
