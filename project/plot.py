@@ -89,10 +89,10 @@ print("barplot_result3 generated")
 
 # List of input files and their labels
 files = [
-    ("measurements/test_case4_basic.csv", "Basic"),
-    ("measurements/test_case4_cacheaware.csv", "Cache Aware"),
-    ("measurements/test_case4_unroll.csv", "Unroll"),
-    ("measurements/test_case4_best.csv", "Best")
+    ("measurements/test_case4_basic.csv", "No optimisation"),
+    ("measurements/test_case4_cacheaware.csv", "Cache awareness"),
+    ("measurements/test_case4_unroll.csv", "Loop unrolling"),
+    ("measurements/test_case4_best.csv", "Best optimisation")
 ]
 
 # Data aggregation
@@ -105,7 +105,7 @@ for dataset in files:
     # Calculate rates
     df['Branch Miss Rate'] = df[' (branch-misses)'] / df[' (branches)']
     df['L1 Miss Rate'] = df[' (L1-dcache-load-misses)'] / df[' (L1-dcache-loads)']
-    df['Stalled Cycles'] = df[' (stalled-cycles-frontend)']
+    df['Stalled Cycles'] = df[' (stalled-cycles-frontend)'] / df[' (cycles)']
     
     data_frames.append(df)
 
@@ -129,7 +129,7 @@ colors = ['red', 'orange', 'yellow', 'green']
 
 # Plotting function
 def plot_metric(data, metric, ylabel, filename):
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(12, 8))
     res = sns.barplot(
         data=data, 
         x='NB_WORKERS', 
@@ -157,14 +157,14 @@ def plot_metric(data, metric, ylabel, filename):
     # Customize plot
     res.set_xlabel("Number of Workers")
     res.set_ylabel(ylabel)
-    res.set_title(f"{ylabel} by Number of Workers for every optimisation method")
-    plt.legend(title="Flag")
+    res.set_title(f"{ylabel} by number of workers for every optimisation method")
+    plt.legend(title="Optimization method")
     plt.savefig(filename, format="pdf")
 
 # Plot all metrics
-plot_metric(plot_data, 'Branch Miss Rate', "Branch Miss Rate", "measurements/barplot_result5.pdf")
-plot_metric(plot_data, 'L1 Miss Rate', "L1 Miss Rate", "measurements/barplot_result6.pdf")
-plot_metric(plot_data, 'Stalled Cycles', "Stalled Cycles", "measurements/barplot_result7.pdf")
+plot_metric(plot_data, 'Branch Miss Rate', "Branch miss rate", "measurements/barplot_result5.pdf")
+plot_metric(plot_data, 'L1 Miss Rate', "L1 miss rate", "measurements/barplot_result6.pdf")
+plot_metric(plot_data, 'Stalled Cycles', "Stalled cycles rate", "measurements/barplot_result7.pdf")
 
 
 
@@ -227,6 +227,8 @@ res = sns.barplot(data=df4, x="Worker", y="Requests/sec", hue="Flag", errorbar=N
 for i in res.containers: res.bar_label(i, fontsize=6.5)
 plt.xlabel("Number of Workers")
 plt.ylabel("Requests/sec")
+plt.legend(title="Optimization method", loc='upper left') 
+
 plt.title("Requests/sec by number of workers for every optimisation method")
 plt.savefig("measurements/barplot_result4.pdf", format="pdf")
 # plt.savefig("measurements/barplot_result4.png")
@@ -238,10 +240,10 @@ print("barplot_result4 generated")
 
 
 files = [
-    ("measurements/test_case4_basic.csv", "Basic"),
-    ("measurements/test_case4_cacheaware.csv", "Cache Aware"),
-    ("measurements/test_case4_unroll.csv", "Unroll"),
-    ("measurements/test_case4_best.csv", "Best")
+    ("measurements/test_case4_basic.csv", "No optimisation"),
+    ("measurements/test_case4_cacheaware.csv", "Cache awareness"),
+    ("measurements/test_case4_unroll.csv", "Loop unrolling"),
+    ("measurements/test_case4_best.csv", "Best optimisation")
 ]
 
 data_frames = []
@@ -253,7 +255,7 @@ for dataset in files:
     # Calculate rates
     df['Branch Miss Rate'] = df[' (branch-misses)'] / df[' (branches)']
     df['L1 Miss Rate'] = df[' (L1-dcache-load-misses)'] / df[' (L1-dcache-loads)']
-    df['Stalled Cycles'] = df[' (stalled-cycles-frontend)']
+    df['Stalled Cycles'] = df[' (stalled-cycles-frontend)'] / df[' (cycles)']
     
     data_frames.append(df)
 
@@ -269,42 +271,6 @@ plot_data.columns = ['NB_WORKERS', 'Dataset'] + [
 # hue labels
 hue_order = [label for _, label in files]
 
-def plot_perf(data, metric, ylabel, filename):
-    plt.figure(figsize=(10, 6))
-    res = sns.barplot(
-        data=data, 
-        x='NB_WORKERS', 
-        y=f'{metric}_mean', 
-        hue='Dataset', 
-        hue_order=hue_order, 
-        palette=colors, 
-        edgecolor='black',
-        ci=None
-    )
-    
-    # error bars
-    for i, bar in enumerate(res.patches):
-        group_idx = i % len(hue_order)  # Get corresponding group index
-        nb_workers = data['NB_WORKERS'].iloc[i // len(hue_order)]
-        dataset = hue_order[group_idx]
-        std_dev = data.loc[
-            (data['NB_WORKERS'] == nb_workers) & (data['Dataset'] == dataset),
-            f'{metric}_std'
-        ].values[0]
-        bar_x = bar.get_x() + bar.get_width() / 2
-        plt.errorbar(bar_x, bar.get_height(), yerr=std_dev, fmt='none', c='black', capsize=5)
-
-    res.set_xlabel("Number of Workers")
-    res.set_ylabel(ylabel)
-    res.set_title(f"{ylabel} by Number of Workers for every optimisation method")
-    plt.legend(title="Flag", loc='upper left') 
-    plt.savefig(filename, format="pdf")
-
-# Plot all metrics
-plot_perf(plot_data, 'Branch Miss Rate', "Branch Miss Rate", "measurements/barplot_result5.pdf")
-plot_perf(plot_data, 'L1 Miss Rate', "L1 Miss Rate", "measurements/barplot_result6.pdf")
-plot_perf(plot_data, 'Stalled Cycles', "Stalled Cycles", "measurements/barplot_result7.pdf")
-
 
 
 #^ =================== task 1_2_3 perf ===================
@@ -313,10 +279,10 @@ plot_perf(plot_data, 'Stalled Cycles', "Stalled Cycles", "measurements/barplot_r
 
 csv_directory = "./measurements"
 file_patterns = [
-    ("basic", "Basic"),
-    ("cache_aware", "Cache Aware"),
-    ("unrolled", "Unroll"),
-    ("best", "Best"),
+    ("basic", "No optimisation"),
+    ("cache_aware", "Cache awareness"),
+    ("unrolled", "Loop unrolling"),
+    ("best", "Best optimisation"),
 ]
 
 merged_frames = []
@@ -371,7 +337,7 @@ sns.set(style="whitegrid", context="talk", font_scale=1.2)
 
 plt.figure(figsize=(12, 8))
 
-hue_order = ['Basic', 'Cache Aware', 'Unroll', 'Best']
+hue_order = ['No optimisation', 'Cache awareness', 'Loop unrolling', 'Best optimisation']
 for i in range(2):
     for j in range(4):
         hue_order.append(hue_order[j])
@@ -387,11 +353,10 @@ barplot = sns.barplot(
 
 barplot.set_xlabel('Test Case', fontsize=14)
 barplot.set_ylabel('Cycles per Request', fontsize=14)
-barplot.set_title('Cycles per Request by Test Case and Optimization Method', fontsize=16)
-plt.legend(title="Flag", loc='upper left') 
+barplot.set_title('Cycles per request by test case and optimization method', fontsize=16)
+plt.legend(title="Optimization method", loc='upper left') 
 
 
-plt.tight_layout()
 
 plt.savefig("measurements/cycles_per_request.pdf", format="pdf")
 
@@ -399,10 +364,10 @@ plt.savefig("measurements/cycles_per_request.pdf", format="pdf")
 
 
 files = [
-    ("measurements/test_case1_2_3_basic.csv", "Basic"),
-    ("measurements/test_case1_2_3_cache_aware.csv", "Cache Aware"),
-    ("measurements/test_case1_2_3_unrolled.csv", "Unroll"),
-    ("measurements/test_case1_2_3_best.csv", "Best"),
+    ("measurements/test_case1_2_3_basic.csv", "No optimisation"),
+    ("measurements/test_case1_2_3_cache_aware.csv", "Cache awareness"),
+    ("measurements/test_case1_2_3_unrolled.csv", "Loop unrolling"),
+    ("measurements/test_case1_2_3_best.csv", "Best optimisation"),
 ]
 
 data_frames = []
@@ -411,20 +376,21 @@ for dataset in files:
     df = pd.read_csv(dataset[0], comment='#')
     df['Dataset'] = dataset[1]
     
-    df['Branch Miss rate'] = (df[' (branch-misses)'] / df[' (instructions)']) * 100
+    df['Branch Miss rate'] = (df[' (branch-misses)'] / df[' (branches)']) 
+    df['L1 Miss rate'] = ( df[' (L1-dcache-load-misses)']/df[' (L1-dcache-loads)'])
     
     data_frames.append(df)
 
 combined_df = pd.concat(data_frames)
 
-plot_data = combined_df.groupby(['TEST_CASE', 'Dataset'])['Branch Miss rate'].agg(['mean', 'std']).reset_index()
+plot_data = combined_df.groupby(['TEST_CASE', 'Dataset'])['L1 Miss rate'].agg(['mean', 'std']).reset_index()
 
-plot_data.columns = ['TEST_CASE', 'Dataset', 'Branch Miss rate_mean', 'Branch Miss rate_std']
+plot_data.columns = ['TEST_CASE', 'Dataset', 'L1 Miss rate_mean', 'L1 Miss rate_std']
 
 hue_order = [label for _, label in files]
 
 
-def plot_metric(data, metric, ylabel, filename):
+def plot_metric(data, metric, ylabel, filename, LOG=False):
     plt.figure(figsize=(12, 8))
     res = sns.barplot(
         data=data, 
@@ -450,23 +416,24 @@ def plot_metric(data, metric, ylabel, filename):
 
     res.set_xlabel("Test Case")
     res.set_ylabel(ylabel)
-    res.set_title(f"{ylabel} by Test Case for every optimisation method")
-    plt.legend(title="Flag")
+    if LOG:
+        plt.yscale('log')
+    res.set_title(f"{ylabel} by test case for every optimisation method")
+    plt.legend(title="Optimization method")
     plt.savefig(filename, format="pdf")
 
-plot_metric(plot_data, 'Branch Miss rate', "Branch Miss rate", "measurements/branch_misses_rate.pdf")
+plot_metric(plot_data, 'L1 Miss rate', "L1 cache miss rate", "measurements/L1_misses_rate.pdf",True)
 
 
 sns.set(style="whitegrid", context="talk", font_scale=1.2)
 
 plt.figure(figsize=(12, 8))
 
-hue_order = ['Basic', 'Cache Aware', 'Unroll', 'Best']
+hue_order = ['No optimisation', 'Cache awareness', 'Loop unrolling', 'Best optimisation']
 for i in range(2):
     for j in range(4):
         hue_order.append(hue_order[j])
  
-
 
 instructions_plot = sns.barplot(
     data=merged_df, 
@@ -477,11 +444,13 @@ instructions_plot = sns.barplot(
     edgecolor='black'
 )
 
+# Basic, Cache Aware, Unroll, Best
+
+#  labels=["No optimisation", "Cache awareness", "Loop unrolling", "Best optimisation"]
+plt.legend(title="Optimization method",) 
+
 instructions_plot.set_xlabel('Test Case', fontsize=14)
 instructions_plot.set_ylabel('Instructions per Request', fontsize=14)
-instructions_plot.set_title('Instructions per Request by Test Case and Optimization Method', fontsize=16)
-plt.legend(title="Flag", loc='upper left') 
-
-plt.tight_layout()
+instructions_plot.set_title('Instructions per request by test case and optimization method', fontsize=16)
 
 plt.savefig("measurements/instructions_per_request.pdf", format="pdf")
