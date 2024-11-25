@@ -6,6 +6,11 @@
 #include <string.h>
 
 #include "utils.h"
+#if defined SIMD
+#include "simd.h"
+#elif defined SIMT
+#include "simt.h"
+#endif
 
 int is_service_on = 0;
 
@@ -86,6 +91,13 @@ void main_function(ngx_link_func_ctx_t *ctx) {
 void ngx_link_func_init_cycle(ngx_link_func_cycle_t *cycle) {
     ngx_link_func_cyc_log(info, cycle, "%s", "Starting application, new logs !");
     is_service_on = 1;
+#ifdef SIMT
+    cudaError_t err;
+    err = cudaInitDevice(0,0,0);
+    if (err != cudaSuccess) printf("Error while initializing CUDA in cudaInitDevice: %s\n", cudaGetErrorString(err));
+    err = cudaSetDevice(0);
+    if (err != cudaSuccess) printf("Error while initializing CUDA in cudaSetDevice: %s\n", cudaGetErrorString(err));
+#endif
 }
 
 /**
