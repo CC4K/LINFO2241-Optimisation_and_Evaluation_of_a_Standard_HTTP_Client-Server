@@ -243,3 +243,8 @@ void res_to_string(char *str, uint32_t *res, uint32_t res_size) {
     }
 #endif
 }
+
+//int main() {
+//    // "run" with CLion to activate code correction
+//    return 0;
+//}
