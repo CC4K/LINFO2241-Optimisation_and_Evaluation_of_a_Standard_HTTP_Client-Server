@@ -1,7 +1,7 @@
 # current test files
-build: main.c ../project/utils/utils.c
+build: main.c ../project/utils/utils.c ../project/utils/simd.c
 	@mkdir -p build
-	@gcc -Wall -Wextra -Werror -std=c99 -pedantic -g -I../project/utils main.c ../project/utils/utils.c -o build/main
+	@gcc -Wall -Wextra -Werror -std=c99 -pedantic -g -I../project/utils main.c ../project/utils/utils.c ../project/utils/simd.c -o build/main
 
 run: build
 	@./build/main

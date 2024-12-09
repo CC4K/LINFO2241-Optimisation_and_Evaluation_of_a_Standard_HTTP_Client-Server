@@ -1,7 +1,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "../project/utils/utils.h"
+//#include "../project/utils/utils.h"
+#include "../project/utils/simd.h"
 
 //#define DUNROLL
 //#define DCACHE_AWARE
@@ -9,14 +10,14 @@
 
 //#define PERF
 
-void test_parse_request(){
-    struct parsed_request parsed;
-    char request[] = "2,2,1,ThisIsAnExample!SomeNetworkLayerExamJump";
-    size_t request_len = sizeof(request) - 1;
-
-    parse_request(&parsed, request, request_len);
-    printf("\nCorrect parse_request\n");
-}
+//void test_parse_request(){
+//    struct parsed_request parsed;
+//    char request[] = "2,2,1,ThisIsAnExample!SomeNetworkLayerExamJump";
+//    size_t request_len = sizeof(request) - 1;
+//
+//    parse_request(&parsed, request, request_len);
+//    printf("\nCorrect parse_request\n");
+//}
 
 void test_multiply_matrix() {
     // initialization
@@ -32,9 +33,8 @@ void test_multiply_matrix() {
     uint32_t *intermediary_matrix = malloc(K * K * sizeof(uint32_t));
 
     // run function
-    multiply_matrix(matrix1, matrix2, intermediary_matrix, K);
+    multiply_matrix_simd(matrix1, matrix2, intermediary_matrix, K);
 
-//    #if !defined(PERF)
     // print result and compare
     for (uint32_t i = 1; i < (K * K)+1; i++) {
         printf("%d\t", intermediary_matrix[i-1]);
@@ -56,7 +56,6 @@ void test_multiply_matrix() {
     }
     if (err) printf("\nIncorrect multiply_matrix\n");
     else printf("\nCorrect multiply_matrix\n");
-//    #endif
 
     // end test
     free(matrix1);
@@ -75,7 +74,7 @@ void test_test_patterns() {
     uint32_t *res_uint = malloc(nb_patterns*sizeof(uint32_t));
 
     // run
-    test_patterns(intermediary_matrix, matrices_size, patterns, patterns_size, nb_patterns, res_uint);
+    test_patterns_simd(intermediary_matrix, matrices_size, patterns, patterns_size, nb_patterns, res_uint);
 
     // print res_uint
     uint32_t expected[2] = {93512024, 3439283};
@@ -95,34 +94,34 @@ void test_test_patterns() {
     free(res_uint);
 }
 
-void test_res_to_string() {
-    uint32_t res_uint[2] = {93512024, 3439283};
-    uint32_t nb_patterns = 2;
-    uint32_t maxsize = 11*nb_patterns;
-    char *res_str = malloc((maxsize*sizeof(uint32_t))+1);
-    char expected[22] = {57, 51, 53, 49, 50, 48, 50, 52, 44, 51, 52, 51, 57, 50, 56, 51, 0, 0, 0, 0, 0, 0};
-
-    res_to_string(res_str, res_uint, nb_patterns);
-    size_t resp_len = strlen(res_str);
-
-    int err = 0;
-    for (uint32_t i = 0; i < maxsize; i++) {
-        printf("%d\t", res_str[i]);
-        if (res_str[i] != expected[i]) err = 1;
-    }
-    printf("\n\n");
-    for (uint32_t i = 0; i < maxsize; i++) printf("%d\t", res_str[i]);
-    printf("\n");
-    printf("length of output: %zu", resp_len);
-    if (err) printf("\nIncorrect res_to_string\n");
-    else printf("\nCorrect res_to_string\n");
-}
+//void test_res_to_string() {
+//    uint32_t res_uint[2] = {93512024, 3439283};
+//    uint32_t nb_patterns = 2;
+//    uint32_t maxsize = 11*nb_patterns;
+//    char *res_str = malloc((maxsize*sizeof(uint32_t))+1);
+//    char expected[22] = {57, 51, 53, 49, 50, 48, 50, 52, 44, 51, 52, 51, 57, 50, 56, 51, 0, 0, 0, 0, 0, 0};
+//
+//    res_to_string(res_str, res_uint, nb_patterns);
+//    size_t resp_len = strlen(res_str);
+//
+//    int err = 0;
+//    for (uint32_t i = 0; i < maxsize; i++) {
+//        printf("%d\t", res_str[i]);
+//        if (res_str[i] != expected[i]) err = 1;
+//    }
+//    printf("\n\n");
+//    for (uint32_t i = 0; i < maxsize; i++) printf("%d\t", res_str[i]);
+//    printf("\n");
+//    printf("length of output: %zu", resp_len);
+//    if (err) printf("\nIncorrect res_to_string\n");
+//    else printf("\nCorrect res_to_string\n");
+//}
 
 int main() {
 //    test_parse_request();
-//    test_multiply_matrix();
+    test_multiply_matrix();
 //    test_test_patterns();
-    test_res_to_string();
+//    test_res_to_string();
 
     return 0;
 }
