@@ -120,8 +120,6 @@ void multiply_matrix_simd(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result
 #else
 #error "Please define either SIMD128, SIMD256, SIMD512 or SIMDBEST. If you see this message at compilation, you forget a -D flag."
 #endif
-
-    return;
 }
 
 
