@@ -1,18 +1,12 @@
-# current test files
+P4_FLAGS = -mavx2 -mavx512f -msse4 -fno-unroll-loops -fno-tree-vectorize -O2
+CFLAGS+= -ggdb -fPIC -Wextra -Werror -Wall -pedantic
+
 build: main.c ../project/utils/utils.c ../project/utils/simd.c
 	@mkdir -p build
-	@gcc -Wall -Wextra -Werror -std=c99 -pedantic -g -I../project/utils main.c ../project/utils/utils.c ../project/utils/simd.c -o build/main
+	@gcc $(CFLAGS) $(P4_FLAGS) -I../project/utils main.c ../project/utils/utils.c ../project/utils/simd.c -o build/main
 
 run: build
 	@./build/main
-
-# old test files
-build_old: main.c ../project/utils/utils.c
-	mkdir -p build 
-	gcc -o build/main main_old.c ../project/utils/utils.c -I../project/utils -Wall -Wextra -Werror -std=c99 -pedantic -g
-
-run_old: build_old
-	./build/main
 
 debug: build
 	gdb -ex run -ex "quit" --args ./build/main
