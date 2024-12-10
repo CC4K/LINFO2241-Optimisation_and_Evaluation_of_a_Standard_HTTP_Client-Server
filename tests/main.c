@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-//#include "../project/utils/utils.h"
+#include "../project/utils/utils.h"
 #include "../project/utils/simd.h"
 
 //#define DUNROLL
@@ -19,7 +19,7 @@
 //    printf("\nCorrect parse_request\n");
 //}
 
-void test_multiply_matrix() {
+void test_multiply_matrix_simd() {
     // initialization
     uint32_t K = 8;
     uint32_t *matrix1 = malloc(K * K * sizeof(uint32_t));
@@ -63,7 +63,7 @@ void test_multiply_matrix() {
     free(intermediary_matrix);
 }
 
-void test_test_patterns() {
+void test_test_patterns_simd() {
     // initialize
     uint32_t intermediary_matrix[64] = {3684,3720,3756,3792,3828,3864,3900,3936,9636,9736,9836,9936,10036,10136,10236,10336,15588,15752,15916,16080,16244,16408,16572,16736,21540,21768,21996,22224,22452,22680,22908,23136,27492,27784,28076,28368,28660,28952,29244,29536,33444,33800,34156,34512,34868,35224,35580,35936,39396,39816,40236,40656,41076,41496,41916,42336,45348,45832,46316,46800,47284,47768,48252,48736};
     uint32_t matrices_size = 8;
@@ -119,8 +119,8 @@ void test_test_patterns() {
 
 int main() {
 //    test_parse_request();
-    test_multiply_matrix();
-//    test_test_patterns();
+//    test_multiply_matrix_simd();
+    test_test_patterns_simd();
 //    test_res_to_string();
 
     return 0;
