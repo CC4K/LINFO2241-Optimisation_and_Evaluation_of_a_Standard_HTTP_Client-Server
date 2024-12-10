@@ -4,12 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-//#include "utils.h"
 #include "../utils/utils.h"
 #if defined SIMD
-#include "simd.h"
+#include "../utils/simd.h"
 #elif defined SIMT
-#include "simt.h"
+#include "../utils/simt.h"
 #endif
 
 int is_service_on = 0;
@@ -49,8 +48,13 @@ static char *body_processing(ngx_link_func_ctx_t *ctx, char *body, size_t body_l
     char *res_str = ngx_link_func_pcalloc(ctx,((11*parsed->nb_patterns*sizeof(uint32_t))+1));
     if (res_str == NULL) return NULL;
 
+    #if defined SIMD
+    multiply_matrix_simd(parsed->mat1, parsed->mat2, intermediary_matrix, parsed->matrices_size);
+    test_patterns_simd(intermediary_matrix, parsed->matrices_size, parsed->patterns, parsed->patterns_size, parsed->nb_patterns, res_uint);
+    #else
     multiply_matrix(parsed->mat1, parsed->mat2, intermediary_matrix, parsed->matrices_size);
     test_patterns(intermediary_matrix, parsed->matrices_size, parsed->patterns, parsed->patterns_size, parsed->nb_patterns, res_uint);
+    #endif
     res_to_string(res_str, res_uint, parsed->nb_patterns);
     *resp_len = strlen(res_str);
 
@@ -112,3 +116,8 @@ void ngx_link_func_exit_cycle(ngx_link_func_cycle_t *cyc) {
     is_service_on = 0;
 }
 #pragma GCC diagnostic pop
+
+int main() {
+    // "run" with CLion to activate code correction
+    return 0;
+}

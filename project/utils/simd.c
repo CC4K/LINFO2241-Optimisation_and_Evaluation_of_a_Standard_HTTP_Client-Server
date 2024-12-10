@@ -2,9 +2,7 @@
 
 //#define SIMD128
 //#define SIMD256
-#define SIMD512
-
-// make -B run_release_simd CFLAGS+="-DSIMDBEST"
+//#define SIMD512
 
 void multiply_matrix_simd(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uint32_t K) {
 #if defined SIMD128
@@ -16,7 +14,7 @@ void multiply_matrix_simd(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result
             uint32_t k = 0;
             for (; k + 3 < K; k += 4) {
                 // load 4 elements from matrix1 row
-                __m128i vec1 = _mm_loadu_si128((__m128i*)row_ptr); // TODO: loadu or load ?
+                __m128i vec1 = _mm_loadu_si128((__m128i*)row_ptr);
                 // move pointer forward
                 row_ptr += 4;
                 // load 4 elements from matrix2 column
@@ -50,7 +48,7 @@ void multiply_matrix_simd(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result
             uint32_t k = 0;
             for (; k + 7 < K; k += 8) {
                 // load 8 elements from matrix1 row
-                __m256i vec1 = _mm256_loadu_si256((__m256i*)row_ptr); // TODO: loadu or load ?
+                __m256i vec1 = _mm256_loadu_si256((__m256i*)row_ptr);
                 // move pointer forward
                 row_ptr += 8;
                 // load 8 elements from matrix2 column
@@ -86,7 +84,7 @@ void multiply_matrix_simd(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result
             uint32_t k = 0;
             for (; k + 15 < K; k += 16) {
                 // load 16 elements from matrix1 row
-                __m512i vec1 = _mm512_loadu_si512((__m512i *)row_ptr); // TODO: loadu or load ?
+                __m512i vec1 = _mm512_loadu_si512((__m512i *)row_ptr);
                 // move pointer forward
                 row_ptr += 16;
                 // load 16 elements from matrix2 column
@@ -137,7 +135,7 @@ void test_patterns_simd(uint32_t *matrix, uint32_t matrix_size, uint32_t *patter
             __m128i vdist = _mm_setzero_si128();  // init squared diff acc
             uint32_t k = 0;
             for (; k + 3 < pattern_size; k += 4) {
-                __m128i vmat = _mm_loadu_si128((__m128i*)(matrix_ptr + k)); // TODO: loadu or load ?
+                __m128i vmat = _mm_loadu_si128((__m128i*)(matrix_ptr + k));
                 __m128i vpat = _mm_loadu_si128((__m128i*)(pattern_ptr + k));
 
                 __m128i vdiff = _mm_sub_epi32(vmat, vpat); // matrix - patterns
@@ -171,7 +169,7 @@ void test_patterns_simd(uint32_t *matrix, uint32_t matrix_size, uint32_t *patter
             __m256i vdist = _mm256_setzero_si256();  // init squared diff acc
             uint32_t k = 0;
             for (; k + 7 < pattern_size; k += 8) {
-                __m256i vmat = _mm256_loadu_si256((__m256i*)(matrix_ptr + k)); // TODO: loadu or load ?
+                __m256i vmat = _mm256_loadu_si256((__m256i*)(matrix_ptr + k));
                 __m256i vpat = _mm256_loadu_si256((__m256i*)(pattern_ptr + k));
 
                 __m256i vdiff = _mm256_sub_epi32(vmat, vpat); // matrix - patterns
@@ -205,7 +203,7 @@ void test_patterns_simd(uint32_t *matrix, uint32_t matrix_size, uint32_t *patter
             __m512i vdist = _mm512_setzero_si512();  // init squared diff acc
             uint32_t k = 0;
             for (; k + 15 < pattern_size; k += 16) {
-                __m512i vmat = _mm512_loadu_si512((__m512i*)(matrix_ptr + k)); // TODO: loadu or load ?
+                __m512i vmat = _mm512_loadu_si512((__m512i*)(matrix_ptr + k));
                 __m512i vpat = _mm512_loadu_si512((__m512i*)(pattern_ptr + k));
 
                 __m512i vdiff = _mm512_sub_epi32(vmat, vpat); // matrix - patterns
