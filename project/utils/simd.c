@@ -205,12 +205,7 @@ void test_patterns_simd(uint32_t *matrix, uint32_t matrix_size, uint32_t *patter
                 pattern_ptr += 16;
             }
             // horizontal sum in v_dist
-            //dist += _mm512_reduce_add_epi32(v_dist);
-            uint32_t temp[16];
-            _mm512_storeu_si512((__m512i*)temp, v_dist);
-            for (int x = 0; x < 16; x++) {
-                dist += temp[x];
-            }
+            dist += _mm512_reduce_add_epi32(v_dist);
             // continue just in case larger than 16
             for (; k < pattern_size; k++) {
                 uint32_t diff = *matrix_ptr++ - *pattern_ptr++;
