@@ -1,212 +1,58 @@
 #!/bin/bash
 
-mkdir -p measurements/
+# sudo make -B run_release_simd CFLAGS+="-DSIMD128" NB_WORKER=1
+# env matsize=128 patterns_size=64 nb_patterns=2 ../wrk2/wrk http://localhost:8888/ --duration 10s --rate -1 -s wrk_scripts/simple_scenario.lua | grep "Requests/sec" | awk '{print "Basic," $2}'
 
-# #==================== Test case 1, 2, 3 ====================#
+N=10 # number of rounds
+MATSIZE=128
+NB_PATTERNS=2
+PATTERNS_SIZE=64
+RATE=-1
+SIMDS=( "SIMD128" "SIMD256" ) # "SIMD512"
 
+# Ensure the measurements directory exists
+mkdir -p measurements
 
-# #======== BASIC #========
+# Create the csv and add header
+CSV="SIMD.csv"
+echo "CFLAG,Requests/sec" > $CSV
 
-run_tests() {
-    case_name=$1
-    cflags=$2
-
-    echo "Case 1, 2, 3, ${case_name} optimization"
-
-    for i in 1 2 3; do
-        (perf stat -e task-clock,cycles,instructions,branches,branch-misses,L1-dcache-loads,L1-dcache-load-misses,stalled-cycles-frontend -D 2000 \
-        make -B -C server_implementation/ run_release ${cflags} \
-        > "output.txt" 2>&1) &
-        sleep 1
-        python3 ./test_1_2_3.py $i
-        make -C server_implementation/ kill_nginx
-        wait
-        python3 parse_perf.py 1 $i
-        mv output.csv test_case$i.csv
-    done
-
-    combine_and_move_csv "${case_name}"
-}
-
-combine_and_move_csv() {
-    case_name=$1
-
-    # Extract the header from the first file
-    head -n 1 test_case1.csv > combined_tests.csv
-
-    # Append the content of all files excluding the header
-    for i in 1 2 3; do
-        tail -n +2 test_case$i.csv >> combined_tests.csv
-        rm test_case$i.csv
-    done
-
-    mv combined_tests.csv measurements/test_case1_2_3_${case_name}.csv
-
-    for i in 1 2 3; do
-        mv test$i.csv measurements/test_case${i}_${case_name}.csv
-    done
-}
-
-# Run tests for different cases
-run_tests "basic" ""
-run_tests "cache_aware" "CFLAGS+=-DCACHE_AWARE"
-run_tests "unrolled" "CFLAGS+=-DUNROLL"
-run_tests "best" "CFLAGS+=-DBEST"
-
-
-
-
-
-#======================= Test case 4 =======================#
-echo "Test case 4: Resource utilization"
-echo "---------------------------------"
-
-
-echo "Case 4, no optimization"
+# Basic run
 make -B -C server_implementation/ run_release NB_WORKER=1 &
-echo "NB_WORKER = 1"
-echo "-------------"
-python3 ./test4.py
-mv test4.csv measurements/test_case4_basic1.csv
-make -C server_implementation/ kill_nginx
-wait
+sleep 2
+echo "===== Basic ====="
+for i in $(seq 1 $N); do
+    echo -n "Basic | Run ${i} "
+    RES=$(env matsize=$MATSIZE patterns_size=$PATTERNS_SIZE nb_patterns=$NB_PATTERNS ../wrk2/wrk http://localhost:8888/ --duration 10s --rate $RATE \
+        -s wrk_scripts/simple_scenario.lua | grep "Requests/sec" | awk '{print "Basic," $2}')
+    echo "$RES" | awk -F',' '{print "=> " $2 " Requests/sec"}'
+    echo "$RES" >> $CSV
+done
 
-make -B -C server_implementation/ run_release NB_WORKER=2 &
-echo "NB_WORKER = 2"
-echo "-------------"
-python3 ./test4.py
-mv test4.csv measurements/test_case4_basic2.csv
-make -C server_implementation/ kill_nginx
-wait
+# Best run
+make -B -C server_implementation/ run_release CFLAGS+="-DBEST" NB_WORKER=1 &
+sleep 2
+echo "===== Best ====="
+for i in $(seq 1 $N); do
+    echo -n "Best | Run ${i} "
+    RES=$(env matsize=$MATSIZE patterns_size=$PATTERNS_SIZE nb_patterns=$NB_PATTERNS ../wrk2/wrk http://localhost:8888/ --duration 10s --rate $RATE \
+        -s wrk_scripts/simple_scenario.lua | grep "Requests/sec" | awk '{print "Best," $2}')
+    echo "$RES" | awk -F',' '{print "=> " $2 " Requests/sec"}'
+    echo "$RES" >> $CSV
+done
 
-make -B -C server_implementation/ run_release NB_WORKER=4 &
-echo "NB_WORKER = 4"
-echo "-------------"
-python3 ./test4.py
-mv test4.csv measurements/test_case4_basic3.csv
-make -C server_implementation/ kill_nginx
-wait
+# SIMD128, SIMD256 (and SIMD512) run
+for SIMD in "${SIMDS[@]}"; do
+    make -B -C server_implementation/ run_release_simd CFLAGS+="-D$SIMD" NB_WORKER=1 &
+    sleep 2
+    echo "===== ${SIMD} ====="
+    for i in $(seq 1 $N); do
+        echo -n "${SIMD} | Run ${i} "
+        RES=$(env matsize=$MATSIZE patterns_size=$PATTERNS_SIZE nb_patterns=$NB_PATTERNS ../wrk2/wrk http://localhost:8888/ --duration 10s --rate $RATE \
+                -s wrk_scripts/simple_scenario.lua | grep "Requests/sec" | awk -v SIMD="$SIMD" '{print SIMD "," $2}')
+        echo "$RES" | awk -F',' '{print "=> " $2 " Requests/sec"}'
+        echo "$RES" >> $CSV
+    done
+done
 
-make -B -C server_implementation/ run_release NB_WORKER=8 &
-echo "NB_WORKER = 8"
-echo "-------------"
-python3 ./test4.py
-mv test4.csv measurements/test_case4_basic4.csv
-make -C server_implementation/ kill_nginx
-wait
-
-
-echo "Case 4, cache awareness optimization"
-make -B -C server_implementation/ run_release "CFLAGS+=-DCACHE_AWARE" NB_WORKER=1 &
-echo "NB_WORKER = 1"
-echo "-------------"
-python3 ./test4.py
-mv test4.csv measurements/test_case4_cache_aware1.csv
-make -C server_implementation/ kill_nginx
-wait
-
-make -B -C server_implementation/ run_release "CFLAGS+=-DCACHE_AWARE" NB_WORKER=2 &
-echo "NB_WORKER = 2"
-echo "-------------"
-python3 ./test4.py
-mv test4.csv measurements/test_case4_cache_aware2.csv
-make -C server_implementation/ kill_nginx
-wait
-
-make -B -C server_implementation/ run_release "CFLAGS+=-DCACHE_AWARE" NB_WORKER=4 &
-echo "NB_WORKER = 4"
-echo "-------------"
-python3 ./test4.py
-mv test4.csv measurements/test_case4_cache_aware3.csv
-make -C server_implementation/ kill_nginx
-wait
-
-make -B -C server_implementation/ run_release "CFLAGS+=-DCACHE_AWARE" NB_WORKER=8 &
-echo "NB_WORKER = 8"
-echo "-------------"
-python3 ./test4.py
-mv test4.csv measurements/test_case4_cache_aware4.csv
-make -C server_implementation/ kill_nginx
-wait
-
-
-echo "Case 4, loop unrolling"
-make -B -C server_implementation/ run_release "CFLAGS+=-DUNROLL" NB_WORKER=1 &
-echo "NB_WORKER = 1"
-echo "-------------"
-python3 ./test4.py
-mv test4.csv measurements/test_case4_unrolled1.csv
-make -C server_implementation/ kill_nginx
-wait
-
-make -B -C server_implementation/ run_release "CFLAGS+=-DUNROLL" NB_WORKER=2 &
-echo "NB_WORKER = 2"
-echo "-------------"
-python3 ./test4.py
-mv test4.csv measurements/test_case4_unrolled2.csv
-make -C server_implementation/ kill_nginx
-wait
-
-make -B -C server_implementation/ run_release "CFLAGS+=-DUNROLL" NB_WORKER=4 &
-echo "NB_WORKER = 4"
-echo "-------------"
-python3 ./test4.py
-mv test4.csv measurements/test_case4_unrolled3.csv
-make -C server_implementation/ kill_nginx
-wait
-
-make -B -C server_implementation/ run_release "CFLAGS+=-DUNROLL" NB_WORKER=8 &
-echo "NB_WORKER = 8"
-echo "-------------"
-python3 ./test4.py
-mv test4.csv measurements/test_case4_unrolled4.csv
-make -C server_implementation/ kill_nginx
-wait
-
-
-echo "Case 4, best optimization"
-make -B -C server_implementation/ run_release "CFLAGS+=-DBEST" NB_WORKER=1 &
-echo "NB_WORKER = 1"
-echo "-------------"
-python3 ./test4.py
-mv test4.csv measurements/test_case4_best1.csv
-make -C server_implementation/ kill_nginx
-wait
-
-make -B -C server_implementation/ run_release "CFLAGS+=-DBEST" NB_WORKER=2 &
-echo "NB_WORKER = 2"
-echo "-------------"
-python3 ./test4.py
-mv test4.csv measurements/test_case4_best2.csv
-make -C server_implementation/ kill_nginx
-wait
-
-make -B -C server_implementation/ run_release "CFLAGS+=-DBEST" NB_WORKER=4 &
-echo "NB_WORKER = 4"
-echo "-------------"
-python3 ./test4.py
-mv test4.csv measurements/test_case4_best3.csv
-make -C server_implementation/ kill_nginx
-wait
-
-make -B -C server_implementation/ run_release "CFLAGS+=-DBEST" NB_WORKER=8 &
-echo "NB_WORKER = 8"
-echo "-------------"
-python3 ./test4.py
-mv test4.csv measurements/test_case4_best4.csv
-make -C server_implementation/ kill_nginx
-wait
-
-
-echo "Evaluating with perf"...
-sudo bash task4.sh
-
-
-#========================== Plots ==========================#
-echo "Generating plots..."
-python3 ./plot.py
-echo "Plots generated"
-
-
-chmod -R a+rw .
-echo "End of script"
+mv $CSV measurements/$CSV
