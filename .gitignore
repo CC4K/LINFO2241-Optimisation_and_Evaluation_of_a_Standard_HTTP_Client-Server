@@ -36,5 +36,7 @@ wrk2/
 wrk/
 project/measurements/
 project/*.csv
+project/*.png
+project/*.svg
 
 project.tar.gz

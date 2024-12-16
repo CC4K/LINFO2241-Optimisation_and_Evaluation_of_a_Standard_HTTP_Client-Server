@@ -8,10 +8,7 @@ MATSIZE=128
 NB_PATTERNS=2
 PATTERNS_SIZE=64
 RATE=-1
-SIMDS=( "SIMD128" "SIMD256" ) # "SIMD512"
-
-# Ensure the measurements directory exists
-mkdir -p measurements
+SIMDS=( "SIMD128" "SIMD256" "SIMD512" ) # "SIMD512"
 
 # Create the csv and add header
 CSV="SIMD.csv"
@@ -55,4 +52,5 @@ for SIMD in "${SIMDS[@]}"; do
     done
 done
 
-mv $CSV measurements/$CSV
+# Generate graph.png
+python3 plot.py
