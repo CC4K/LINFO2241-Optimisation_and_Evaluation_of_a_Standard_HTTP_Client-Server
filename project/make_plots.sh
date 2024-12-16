@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# sudo make -B run_release_simd CFLAGS+="-DSIMD128" NB_WORKER=1
+# make -B run_release_simd CFLAGS+="-DSIMD128" NB_WORKER=1
 # env matsize=128 patterns_size=64 nb_patterns=2 ../wrk2/wrk http://localhost:8888/ --duration 10s --rate -1 -s wrk_scripts/simple_scenario.lua | grep "Requests/sec" | awk '{print "Basic," $2}'
 
 N=10 # number of rounds

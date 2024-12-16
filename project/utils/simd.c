@@ -6,18 +6,18 @@
 
 
 void multiply_matrix_simd(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uint32_t K) {
-#if defined SIMD128
     for (uint32_t i = 0; i < K; i++) {
         uint32_t j = 0;
         uint32_t k = 0;
         uint32_t iK = i*K;
         for (; j < K; j++) {
             uint32_t mat1_iK_j = matrix1[iK + j];
-            __m128i v_mat1_iK_j = _mm_set1_epi32(mat1_iK_j);
             // pointers for result and matrix2
             uint32_t *result_iK_ptr = result + iK;
             uint32_t *mat2_jK_ptr = matrix2 + j*K;
             k = 0;
+#if defined SIMD128
+            __m128i v_mat1_iK_j = _mm_set1_epi32(mat1_iK_j);
             for (; k + 3 < K; k += 4) {
                 __m128i v_mat2 = _mm_loadu_si128((__m128i *)(mat2_jK_ptr + k));
                 __m128i v_result = _mm_loadu_si128((__m128i *)(result_iK_ptr + k));
@@ -28,24 +28,8 @@ void multiply_matrix_simd(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result
                 // store to result matrix
                 _mm_storeu_si128((__m128i *)(result_iK_ptr + k), v_result);
             }
-            // continue just in case larger than 4
-            for (; k < K; k++) {
-                result_iK_ptr[k] += mat1_iK_j * mat2_jK_ptr[k];
-            }
-        }
-    }
-#elif defined SIMD256 || defined SIMDBEST
-    for (uint32_t i = 0; i < K; i++) {
-        uint32_t j = 0;
-        uint32_t k = 0;
-        uint32_t iK = i*K;
-        for (; j < K; j++) {
-            uint32_t mat1_iK_j = matrix1[iK + j];
+#elif defined SIMD256
             __m256i v_mat1_iK_j = _mm256_set1_epi32(mat1_iK_j);
-            // pointers for result and matrix2
-            uint32_t *result_iK_ptr = result + iK;
-            uint32_t *mat2_jK_ptr = matrix2 + j*K;
-            k = 0;
             for (; k + 7 < K; k += 8) {
                 __m256i v_mat2 = _mm256_loadu_si256((__m256i *)(mat2_jK_ptr + k));
                 __m256i v_result = _mm256_loadu_si256((__m256i *)(result_iK_ptr + k));
@@ -56,24 +40,8 @@ void multiply_matrix_simd(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result
                 // store to result matrix
                 _mm256_storeu_si256((__m256i *)(result_iK_ptr + k), v_result);
             }
-            // continue just in case larger than 8
-            for (; k < K; k++) {
-                result_iK_ptr[k] += mat1_iK_j * mat2_jK_ptr[k];
-            }
-        }
-    }
-#elif defined SIMD512
-    for (uint32_t i = 0; i < K; i++) {
-        uint32_t j = 0;
-        uint32_t k = 0;
-        uint32_t iK = i*K;
-        for (; j < K; j++) {
-            uint32_t mat1_iK_j = matrix1[iK + j];
+#elif defined SIMD512 || defined SIMDBEST
             __m512i v_mat1_iK_j = _mm512_set1_epi32(mat1_iK_j);
-            // pointers for result and matrix2
-            uint32_t *result_iK_ptr = result + iK;
-            uint32_t *mat2_jK_ptr = matrix2 + j*K;
-            k = 0;
             for (; k + 15 < K; k += 16) {
                 __m512i v_mat2 = _mm512_loadu_si512((__m512i *)(mat2_jK_ptr + k));
                 __m512i v_result = _mm512_loadu_si512((__m512i *)(result_iK_ptr + k));
@@ -84,20 +52,19 @@ void multiply_matrix_simd(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result
                 // store to result matrix
                 _mm512_storeu_si512((__m512i *)(result_iK_ptr + k), v_result);
             }
-            // continue just in case larger than 16
+#else
+#error "Please define either SIMD128, SIMD256, SIMD512 or SIMDBEST. If you see this message at compilation, you forget a -D flag."
+#endif
+            // continue just in case larger
             for (; k < K; k++) {
                 result_iK_ptr[k] += mat1_iK_j * mat2_jK_ptr[k];
             }
         }
     }
-#else
-#error "Please define either SIMD128, SIMD256, SIMD512 or SIMDBEST. If you see this message at compilation, you forget a -D flag."
-#endif
 }
 
 
 void test_patterns_simd(uint32_t *matrix, uint32_t matrix_size, uint32_t *patterns, uint32_t pattern_size, uint32_t nb_patterns, uint32_t *res) {
-#if defined SIMD128
     uint32_t n = nb_patterns;
     uint32_t m = matrix_size * matrix_size;
     memset(res, UINT32_MAX, n * sizeof(uint32_t));
@@ -109,6 +76,7 @@ void test_patterns_simd(uint32_t *matrix, uint32_t matrix_size, uint32_t *patter
             // pointers for matrix and patterns
             uint32_t *matrix_i_ptr = matrix + i;
             uint32_t *pattern_new_j_ptr = patterns + new_j;
+#if defined SIMD128
             // storage
             __m128i v_dist = _mm_setzero_si128();
             for (; k + 3 < pattern_size; k += 4) {
@@ -126,28 +94,7 @@ void test_patterns_simd(uint32_t *matrix, uint32_t matrix_size, uint32_t *patter
             v_dist = _mm_hadd_epi32(v_dist, v_dist);
             v_dist = _mm_hadd_epi32(v_dist, v_dist);
             dist += _mm_cvtsi128_si32(v_dist);
-            // continue just in case larger than 4
-            for (; k < pattern_size; k++) {
-                uint32_t diff = *matrix_i_ptr++ - *pattern_new_j_ptr++;
-                dist += diff * diff;
-            }
-            // update min dist
-            if (dist < res[j]) res[j] = dist;
-        }
-    }
-#elif defined SIMD256 || defined SIMDBEST
-    uint32_t n = nb_patterns;
-    uint32_t m = matrix_size * matrix_size;
-    memset(res, UINT32_MAX, n * sizeof(uint32_t));
-    for (uint32_t i = 0; i < (m - pattern_size + 1); i++) {
-        for (uint32_t j = 0; j < n; j++) {
-            uint32_t dist = 0;
-            uint32_t k = 0;
-            uint32_t new_j = j * pattern_size;
-
-            // pointers for matrix and patterns
-            uint32_t *matrix_i_ptr = matrix + i;
-            uint32_t *pattern_new_j_ptr = patterns + new_j;
+#elif defined SIMD256
             // storage
             __m256i v_dist = _mm256_setzero_si256();
             for (; k + 7 < pattern_size; k += 8) {
@@ -168,28 +115,7 @@ void test_patterns_simd(uint32_t *matrix, uint32_t matrix_size, uint32_t *patter
             v_sum = _mm_hadd_epi32(v_sum, v_sum);
             v_sum = _mm_hadd_epi32(v_sum, v_sum);
             dist += _mm_cvtsi128_si32(v_sum);
-            // continue just in case larger than 8
-            for (; k < pattern_size; k++) {
-                uint32_t diff = *matrix_i_ptr++ - *pattern_new_j_ptr++;
-                dist += diff * diff;
-            }
-            // update min dist
-            if (dist < res[j]) res[j] = dist;
-        }
-    }
-#elif defined SIMD512
-    uint32_t n = nb_patterns;
-    uint32_t m = matrix_size * matrix_size;
-    memset(res, UINT32_MAX, n * sizeof(uint32_t));
-    for (uint32_t i = 0; i < (m - pattern_size + 1); i++) {
-        for (uint32_t j = 0; j < n; j++) {
-            uint32_t dist = 0;
-            uint32_t k = 0;
-            uint32_t new_j = j * pattern_size;
-
-            // pointers for matrix and patterns
-            uint32_t *matrix_i_ptr = matrix + i;
-            uint32_t *pattern_new_j_ptr = patterns + new_j;
+#elif defined SIMD512 || defined SIMDBEST
             // storage
             __m512i v_dist = _mm512_setzero_si512();
             for (; k + 15 < pattern_size; k += 16) {
@@ -205,7 +131,10 @@ void test_patterns_simd(uint32_t *matrix, uint32_t matrix_size, uint32_t *patter
             }
             // horizontal sum in v_dist
             dist += _mm512_reduce_add_epi32(v_dist);
-            // continue just in case larger than 16
+#else
+#error "Please define either SIMD128, SIMD256, SIMD512 or SIMDBEST. If you see this message at compilation, you forget a -D flag."
+#endif
+            // continue just in case larger
             for (; k < pattern_size; k++) {
                 uint32_t diff = *matrix_i_ptr++ - *pattern_new_j_ptr++;
                 dist += diff * diff;
@@ -214,13 +143,4 @@ void test_patterns_simd(uint32_t *matrix, uint32_t matrix_size, uint32_t *patter
             if (dist < res[j]) res[j] = dist;
         }
     }
-#else
-#error "Please define either SIMD128, SIMD256, SIMD512 or SIMDBEST. If you see this message at compilation, you forget a -D flag."
-#endif
 }
-
-
-//int main() {
-//    // "run" with CLion to activate code correction
-//    return 0;
-//}
