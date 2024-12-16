@@ -17,37 +17,37 @@ echo "CFLAG,Requests/sec" > $CSV
 # Basic run
 make -B -C server_implementation/ run_release NB_WORKER=1 &
 sleep 2
-echo "===== Basic ====="
+#echo "===== Basic ====="
 for i in $(seq 1 $N); do
-    echo -n "Basic | Run ${i} "
+#    echo -n "Basic | Run ${i} "
     RES=$(env matsize=$MATSIZE patterns_size=$PATTERNS_SIZE nb_patterns=$NB_PATTERNS ../wrk2/wrk http://localhost:8888/ --duration 10s --rate $RATE \
         -s wrk_scripts/simple_scenario.lua | grep "Requests/sec" | awk '{print "Basic," $2}')
-    echo "$RES" | awk -F',' '{print "=> " $2 " Requests/sec"}'
+#    echo "$RES" | awk -F',' '{print "=> " $2 " Requests/sec"}'
     echo "$RES" >> $CSV
 done
 
 # Best run
 make -B -C server_implementation/ run_release CFLAGS+="-DBEST" NB_WORKER=1 &
 sleep 2
-echo "===== Best ====="
+#echo "===== Best ====="
 for i in $(seq 1 $N); do
-    echo -n "Best | Run ${i} "
+#    echo -n "Best | Run ${i} "
     RES=$(env matsize=$MATSIZE patterns_size=$PATTERNS_SIZE nb_patterns=$NB_PATTERNS ../wrk2/wrk http://localhost:8888/ --duration 10s --rate $RATE \
         -s wrk_scripts/simple_scenario.lua | grep "Requests/sec" | awk '{print "Best," $2}')
-    echo "$RES" | awk -F',' '{print "=> " $2 " Requests/sec"}'
+#    echo "$RES" | awk -F',' '{print "=> " $2 " Requests/sec"}'
     echo "$RES" >> $CSV
 done
 
-# SIMD128, SIMD256 (and SIMD512) run
+# SIMD128, SIMD256 and SIMD512 run
 for SIMD in "${SIMDS[@]}"; do
     make -B -C server_implementation/ run_release_simd CFLAGS+="-D$SIMD" NB_WORKER=1 &
     sleep 2
-    echo "===== ${SIMD} ====="
+#    echo "===== ${SIMD} ====="
     for i in $(seq 1 $N); do
-        echo -n "${SIMD} | Run ${i} "
+#        echo -n "${SIMD} | Run ${i} "
         RES=$(env matsize=$MATSIZE patterns_size=$PATTERNS_SIZE nb_patterns=$NB_PATTERNS ../wrk2/wrk http://localhost:8888/ --duration 10s --rate $RATE \
                 -s wrk_scripts/simple_scenario.lua | grep "Requests/sec" | awk -v SIMD="$SIMD" '{print SIMD "," $2}')
-        echo "$RES" | awk -F',' '{print "=> " $2 " Requests/sec"}'
+#        echo "$RES" | awk -F',' '{print "=> " $2 " Requests/sec"}'
         echo "$RES" >> $CSV
     done
 done
