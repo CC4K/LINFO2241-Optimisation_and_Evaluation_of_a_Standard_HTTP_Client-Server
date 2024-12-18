@@ -117,7 +117,3 @@ void ngx_link_func_exit_cycle(ngx_link_func_cycle_t *cyc) {
 }
 #pragma GCC diagnostic pop
 
-int main() {
-    // "run" with CLion to activate code correction
-    return 0;
-}

@@ -4,8 +4,6 @@
 //#define CACHE_AWARE
 //#define BEST
 
-//env matsize=64 patterns_size=32 nb_patterns=16 ./wrk2/wrk http://localhost:8888/ --connections 2 --duration 40s -R-1 -s project/wrk_scripts/simple_scenario.lua
-
 void parse_request(struct parsed_request *parsed, char *request, size_t request_len) {
     char *current = request;
     char *comma;
@@ -243,8 +241,3 @@ void res_to_string(char *str, uint32_t *res, uint32_t res_size) {
     }
 #endif
 }
-
-//int main() {
-//    // "run" with CLion to activate code correction
-//    return 0;
-//}
