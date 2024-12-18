@@ -116,4 +116,3 @@ void ngx_link_func_exit_cycle(ngx_link_func_cycle_t *cyc) {
     is_service_on = 0;
 }
 #pragma GCC diagnostic pop
-
