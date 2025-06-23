@@ -14,6 +14,7 @@
  *
  * @note `result` should be modified to the result of the multiplication of the matrices
 */
-void multiply_matrix_simt(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uint32_t K);
-
+// void multiply_matrix_simt(uint32_t *matrix1, uint32_t *matrix2, uint32_t *result, uint32_t K);
+// void test_patterns_simt(uint32_t *matrix, uint32_t matrix_size, uint32_t *patterns, uint32_t pattern_size, uint32_t nb_patterns, uint32_t *res);
+void multiply_matrix_and_test_patterns_simt(uint32_t *matrix1, uint32_t *matrix2, uint32_t K, uint32_t *patterns, uint32_t pattern_size, uint32_t nb_patterns, uint32_t *res);
 // TODO add other functions if you need it

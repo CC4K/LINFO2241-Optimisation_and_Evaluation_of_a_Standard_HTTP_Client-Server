@@ -51,6 +51,8 @@ static char *body_processing(ngx_link_func_ctx_t *ctx, char *body, size_t body_l
     #if defined SIMD
     multiply_matrix_simd(parsed->mat1, parsed->mat2, intermediary_matrix, parsed->matrices_size);
     test_patterns_simd(intermediary_matrix, parsed->matrices_size, parsed->patterns, parsed->patterns_size, parsed->nb_patterns, res_uint);
+    #elif defined SIMT
+    multiply_matrix_and_test_patterns_simt(parsed->mat1, parsed->mat2, parsed->matrices_size, parsed->patterns, parsed->patterns_size, parsed->nb_patterns, res_uint);
     #else
     multiply_matrix(parsed->mat1, parsed->mat2, intermediary_matrix, parsed->matrices_size);
     test_patterns(intermediary_matrix, parsed->matrices_size, parsed->patterns, parsed->patterns_size, parsed->nb_patterns, res_uint);
